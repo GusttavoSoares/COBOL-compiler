@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 enum TokenCategory {
     // Reserved Keywords
@@ -135,11 +136,16 @@ void scanLine4Token(char c) {
     }
 }
 
+// str_append(char *s, char buffer) {
+
+// }
+
 void readCharByChar(char * file) {
     FILE *filePointer = NULL;
     
     int thisCharacter; // hold the value of current character
-
+    char s[128];
+    char asciC;
     filePointer = fopen(file, "r");
     fseek(filePointer, 6, SEEK_CUR);
 
@@ -150,9 +156,30 @@ void readCharByChar(char * file) {
 
     while ((thisCharacter = fgetc(filePointer)) != EOF) {
         if (thisCharacter == '\n') {
-            fseek(filePointer, 6, SEEK_CUR);
+            fseek(filePointer, 7, SEEK_CUR);
         }
-        printf("%c", thisCharacter);
+
+            // KEYWORDS OR IDENTIFICATION
+            printf("thischaraacter: %c\n", thisCharacter);
+            if (thisCharacter != ' ') {
+                // while (*s++);
+                char cToStr[2];
+                cToStr[1] = '\0';
+
+                cToStr[0] = (char) thisCharacter;
+                
+                // printf("ASCIC %s\n", cToStr);
+                // char* teste = asciC[0];
+                strcat(s, cToStr);
+
+                // *s = '\0';
+
+                printf("s retornado 1: %s\n", s);
+            } else {
+                printf("?");
+            }
+            // printf("s retornado: %s\n", s);
+        // printf("%c", thisCharacter);
 
     }
 
