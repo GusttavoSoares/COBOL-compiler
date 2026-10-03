@@ -141,6 +141,7 @@ void readCharByChar(char * file) {
     int thisCharacter; // hold the value of current character
 
     filePointer = fopen(file, "r");
+    fseek(filePointer, 6, SEEK_CUR);
 
     if (filePointer == NULL) {
         perror("Error in file pointer ");
@@ -148,9 +149,9 @@ void readCharByChar(char * file) {
     }
 
     while ((thisCharacter = fgetc(filePointer)) != EOF) {
-        // if (thisCharacter == '\n') {
-        //     printf("encontrado new line");
-        // }
+        if (thisCharacter == '\n') {
+            fseek(filePointer, 6, SEEK_CUR);
+        }
         printf("%c", thisCharacter);
 
     }
