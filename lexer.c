@@ -145,7 +145,6 @@ void readCharByChar(char * file) {
     
     int thisCharacter; // hold the value of current character
     char s[128];
-    char asciC;
     filePointer = fopen(file, "r");
     fseek(filePointer, 6, SEEK_CUR);
 
@@ -160,7 +159,7 @@ void readCharByChar(char * file) {
         }
 
             // KEYWORDS OR IDENTIFICATION
-            printf("thischaraacter: %c\n", thisCharacter);
+            // printf("thischaraacter: %c\n", thisCharacter);
             if (thisCharacter != ' ') {
                 // while (*s++);
                 char cToStr[2];
@@ -168,15 +167,32 @@ void readCharByChar(char * file) {
 
                 cToStr[0] = (char) thisCharacter;
                 
-                // printf("ASCIC %s\n", cToStr);
+                printf("ASCIC %s\n", cToStr);
                 // char* teste = asciC[0];
                 strcat(s, cToStr);
 
+                printf("%s\n", s);
+
+                // if (thisCharacter == ' ') {
+                //     for (int i = 0; i < 129; i++) {
+                //         free(s[i]);
+                //     }
+                // }         
+
+                
+
                 // *s = '\0';
 
-                printf("s retornado 1: %s\n", s);
+                // printf("s retornado 1: %s\n", s);
             } else {
-                printf("?");
+
+                // KEYWORDS
+                if (strcmp(s, "IDENTIFICATION") == 0) {
+                    printf("ENCONTROU IDENTIFICATION em %s", s);
+                }
+
+                memset(s, 0, sizeof(s));
+
             }
             // printf("s retornado: %s\n", s);
         // printf("%c", thisCharacter);
