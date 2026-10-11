@@ -16,7 +16,6 @@ const char* ht_set(hash_table* table, const char* key, void* value);
 
 size_t ht_length(hash_table* table);
 
-hash_table* hashTableCreate(void);
 
 typedef struct {
     const char* key;

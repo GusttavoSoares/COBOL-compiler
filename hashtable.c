@@ -53,53 +53,16 @@ static uint64_t hash_key(const char* key) {
     for (const char* p = key; *p; p++) { // roda enquanto o ponteiro apontar para um valor diferente de zero (nao for terminador nulo)
         hash *= FNV_PRIME;
         hash ^= (uint64_t)(unsigned char) (*p);
-    };
+    }
 
     return hash;
-}
-
-const char* ht_set(hash_table* table, const char* key, void* value) {
-    //assert(value != NULL);
-    if (value == NULL) {
-        return NULL;
-    }
-
-    // if (table->length >= table->capacity / 2) {
-    //     if (!ht_expand(table)) { // Falta implementar a expansão
-    //         return NULL;
-    //     }
-    // }
-
-    return ht_set_entry(table->entries, table->capacity, key, value, &table->length);
-}
-
-hti ht_iterator(hash_table* table) {
-    hti it;
-    it._table = table;
-    it._index - 0;
-    return it;
-}
-
-bool ht_next(hti* it) {
-    hash_table* table = it->_table;
-    while (it->_index < table->capacity) {
-        size_t i = it->_index;
-        it->_index++;
-        if (table->entries[i].key != NULL) {
-            hash_table_entry entry = table->entries[i];
-            it->key = entry.key;
-            it->value = entry.value;
-            return true;
-        }
-    }
-    return false;
 }
 
 // Se já tiver colocado uma vez, atualiza apenas  o value
 // Se nao tiver colocado nenhuma vez, atualiza value e key
 static const char* ht_set_entry(hash_table_entry* entries, size_t capacity, const char* key, void* value, size_t* plength) {
     uint64_t hash = hash_key(key);
-    size_t index = (size_t) (hash & (uint64_t) (capacity -1)); // *
+    size_t index = (size_t) (hash & (uint64_t)(capacity -1)); // *
 
     while (entries[index].key != NULL) {
         if (strcmp(key, entries[index].key) == 0) {
@@ -124,6 +87,44 @@ static const char* ht_set_entry(hash_table_entry* entries, size_t capacity, cons
     entries[index].value = value;
     return key;
     }
+
+
+const char* ht_set(hash_table* table, const char* key, void* value) {
+    //assert(value != NULL);
+    if (value == NULL) {
+        return NULL;
+    }
+
+    // if (table->length >= table->capacity / 2) {
+    //     if (!ht_expand(table)) { // Falta implementar a expansão
+    //         return NULL;
+    //     }
+    // }
+
+    return ht_set_entry(table->entries, table->capacity, key, value, &table->length);
+}
+
+hti ht_iterator(hash_table* table) {
+    hti it;
+    it._table = table;
+    it._index = 0;
+    return it;
+}
+
+bool ht_next(hti* it) {
+    hash_table* table = it->_table;
+    while (it->_index < table->capacity) {
+        size_t i = it->_index;
+        it->_index++;
+        if (table->entries[i].key != NULL) {
+            hash_table_entry entry = table->entries[i];
+            it->key = entry.key;
+            it->value = entry.value;
+            return true;
+        }
+    }
+    return false;
+}
 
 
 void* ht_get(hash_table* table, const char* key) {
