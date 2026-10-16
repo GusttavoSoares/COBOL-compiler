@@ -90,6 +90,54 @@ void addToken(enum TokenCategory character, char lexeme) {
     printTokenCategory(category);
 }
 
+void isKeyword(char* word) {
+    if (strcmp(word, "IDENTIFICATION") == 0) {
+        printf("IDENTIFICATION\n");
+    }
+    else if (strcmp(word, "ENVIRONMENT") == 0) {
+        printf("ENVIRONMENT\n");
+    }
+    else if (strcmp(word, "DATA") == 0) {
+        printf("DATA\n");
+    }
+    else if (strcmp(word, "PROCEDURE") == 0) {
+        printf("PROCEDURE\n");
+    }
+    else if (strcmp(word, "DIVISION") == 0) {
+        printf("DIVISION\n");
+    }
+    else if (strcmp(word, "SECTION") == 0) {
+        printf("SECTION\n");
+    }
+    else if (strcmp(word, "DISPLAY") == 0) {
+        printf("DISPLAY\n");
+    }
+    else if (strcmp(word, "ACCEPT") == 0) {
+        printf("ACCEPT\n");
+    }
+    else if (strcmp(word, "PERFORM") == 0) {
+        printf("PERFORM\n");
+    }
+    else if (strcmp(word, "STOP") == 0) {
+        printf("STOP\n");
+    }
+    else if (strcmp(word, "RUN") == 0) {
+        printf("RUN\n");
+    }
+    else if (strcmp(word, "IF") == 0) {
+        printf("IF\n");
+    }
+    else if (strcmp(word, "ELSE") == 0) {
+        printf("ELSE\n");
+    }
+    else if (strcmp(word, "MOVE") == 0) {
+        printf("MOVE\n");
+    }
+    else {
+        printf("Nenhum");
+    }
+
+}
 
 void scanLine4Token(char c) {
     switch (c) {
@@ -144,9 +192,9 @@ void readCharByChar(char * file) {
     FILE *filePointer = NULL;
     
     int thisCharacter; // hold the value of current character
-    char s[128];
+    char s[126];
     filePointer = fopen(file, "r");
-    fseek(filePointer, 6, SEEK_CUR);
+    fseek(filePointer, 7, SEEK_CUR);
 
     if (filePointer == NULL) {
         perror("Error in file pointer ");
@@ -155,45 +203,48 @@ void readCharByChar(char * file) {
 
     while ((thisCharacter = fgetc(filePointer)) != EOF) {
         if (thisCharacter == '\n') {
-            fseek(filePointer, 7, SEEK_CUR);
+            fseek(filePointer, 6, SEEK_CUR);
         }
 
             // KEYWORDS OR IDENTIFICATION
             // printf("thischaraacter: %c\n", thisCharacter);
-            if (thisCharacter != ' ') {
-                // while (*s++);
-                char cToStr[2];
-                cToStr[1] = '\0';
+        if (thisCharacter != ' ') {
+            // while (*s++);
+            char cToStr[2];
+            cToStr[1] = '\0';
 
-                cToStr[0] = (char) thisCharacter;
-                
-                printf("ASCIC %s\n", cToStr);
-                // char* teste = asciC[0];
-                strcat(s, cToStr);
-
-                printf("%s\n", s);
-
-                // if (thisCharacter == ' ') {
-                //     for (int i = 0; i < 129; i++) {
-                //         free(s[i]);
-                //     }
-                // }         
-
-                
-
-                // *s = '\0';
-
-                // printf("s retornado 1: %s\n", s);
-            } else {
-
-                // KEYWORDS
-                if (strcmp(s, "IDENTIFICATION") == 0) {
-                    printf("ENCONTROU IDENTIFICATION em %s", s);
-                }
-
-                memset(s, 0, sizeof(s));
-
+            if (thisCharacter != '\n') {
+            cToStr[0] = (char) thisCharacter;
+            
+            // printf("ASCIC %s\n", cToStr);
+            // char* teste = asciC[0];
+            strcat(s, cToStr);
             }
+
+            // s eh a palavrfa final
+            // printf("%s\n", s);
+
+            // if (thisCharacter == ' ') {
+            //     for (int i = 0; i < 129; i++) {
+            //         free(s[i]);
+            //     }
+            // }         
+
+            
+
+            // *s = '\0';
+
+            // printf("s retornado 1: %s\n", s);
+        } else {
+
+            // KEYWORDS
+            // isKeyword(s);
+
+            printf("%s\n", s);
+
+            memset(s, 0, sizeof(s));
+
+        }
             // printf("s retornado: %s\n", s);
         // printf("%c", thisCharacter);
 

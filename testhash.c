@@ -37,6 +37,7 @@ int main(void) {
 
     hti it = ht_iterator(counts);
     while (ht_next(&it)) {
+        printf("---------------------\n");
         printf("%s %d\n", it.key, *(int*)it.value);
         free(it.value);
 
