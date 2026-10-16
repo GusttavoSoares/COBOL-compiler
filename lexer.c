@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "hashtable.h"
 
 enum TokenCategory {
     // Reserved Keywords
@@ -42,10 +43,18 @@ enum TokenCategory {
 
 };
 
+void exit_nomem(void) {
+    fprintf(stderr, "out of memory\n");
+    exit(1);
+}
+
+
 // Essa função precisa returnar String e não print
-void printTokenCategory (enum TokenCategory category){
+void printTokenCategory (enum TokenCategory category, hash_table* table, char* lexeme ){
+
+ 
     switch (category) {
-        case IDENTIFICATION: printf("IDENTIFICATION"); break;
+        case IDENTIFICATION: lexeme; break;
         case ENVIRONMENT: printf("ENVIRONMENT"); break;
         case DATA: printf("DATA"); break;
         case PROCEDURE: printf("PROCEDURE"); break;
@@ -76,68 +85,97 @@ void printTokenCategory (enum TokenCategory category){
         case DEPURATION: printf("DEPURATION"); break;
         default: printf("Error"); break;
     }
+
+    
 }
 
 typedef struct {
     enum TokenCategory tokencategory;
-    char lexeme;
+    char* lexeme;
 
 } Token;
 
 void addToken(enum TokenCategory character, char lexeme) { 
     enum TokenCategory category = character;
     // 
-    printTokenCategory(category);
+    // printTokenCategory(category);
 }
 
-void isKeyword(char* word) {
-    if (strcmp(word, "IDENTIFICATION") == 0) {
-        printf("IDENTIFICATION\n");
+void addtohash(hash_table *table, char* lexeme) { 
+    printf("indo salvar o lexeme %s \n", lexeme);
+    void* value = ht_get(table, lexeme);
+
+    if (value != NULL) {
+        int* pcount = (int*) value;
+        (*pcount)++;
     }
-    else if (strcmp(word, "ENVIRONMENT") == 0) {
-        printf("ENVIRONMENT\n");
+
+    int* pcount = malloc(sizeof(int));
+
+    if (pcount == NULL) {
+        exit_nomem();
     }
-    else if (strcmp(word, "DATA") == 0) {
-        printf("DATA\n");
+
+     *pcount = 1;
+    if (ht_set(table, lexeme, pcount) == NULL) {
+        exit_nomem();
     }
-    else if (strcmp(word, "PROCEDURE") == 0) {
-        printf("PROCEDURE\n");
+}
+
+void isKeyword(char* lexeme, hash_table* table) {
+    printf("lexeme que chegou %s\n", lexeme);
+
+    if (strcmp(lexeme, "IDENTIFICATION") == 0) {
+       addtohash(table, lexeme);
     }
-    else if (strcmp(word, "DIVISION") == 0) {
-        printf("DIVISION\n");
+    else if (strcmp(lexeme, "ENVIRONMENT") == 0) {
+        addtohash(table, lexeme);
     }
-    else if (strcmp(word, "SECTION") == 0) {
-        printf("SECTION\n");
+    else if (strcmp(lexeme, "DATA") == 0) {
+        addtohash(table, lexeme);
     }
-    else if (strcmp(word, "DISPLAY") == 0) {
-        printf("DISPLAY\n");
+    else if (strcmp(lexeme, "PROCEDURE") == 0) {
+        addtohash(table, lexeme);
     }
-    else if (strcmp(word, "ACCEPT") == 0) {
-        printf("ACCEPT\n");
+    else if (strcmp(lexeme, "DIVISION.") == 0) {
+        addtohash(table, lexeme);
     }
-    else if (strcmp(word, "PERFORM") == 0) {
-        printf("PERFORM\n");
+    else if (strcmp(lexeme, "SECTION") == 0) {
+        addtohash(table, lexeme);
     }
-    else if (strcmp(word, "STOP") == 0) {
-        printf("STOP\n");
+    else if (strcmp(lexeme, "DISPLAY") == 0) {
+        addtohash(table, lexeme);
     }
-    else if (strcmp(word, "RUN") == 0) {
-        printf("RUN\n");
+    else if (strcmp(lexeme, "ACCEPT") == 0) {
+        addtohash(table, lexeme);
     }
-    else if (strcmp(word, "IF") == 0) {
-        printf("IF\n");
+    else if (strcmp(lexeme, "PERFORM") == 0) {
+        addtohash(table, lexeme);
     }
-    else if (strcmp(word, "ELSE") == 0) {
-        printf("ELSE\n");
+    else if (strcmp(lexeme, "STOP") == 0) {
+        addtohash(table, lexeme);
     }
-    else if (strcmp(word, "MOVE") == 0) {
-        printf("MOVE\n");
+    else if (strcmp(lexeme, "RUN") == 0) {
+        addtohash(table, lexeme);
+    }
+    else if (strcmp(lexeme, "IF") == 0) {
+        addtohash(table, lexeme);
+    }
+    else if (strcmp(lexeme, "ELSE") == 0) {
+        addtohash(table, lexeme);
+    }
+    else if (strcmp(lexeme, "MOVE") == 0) {
+        addtohash(table, lexeme);
     }
     else {
-        printf("Nenhum");
+        printf(lexeme, "\n");
     }
 
+
+
 }
+
+
 
 void scanLine4Token(char c) {
     switch (c) {
@@ -188,11 +226,12 @@ void scanLine4Token(char c) {
 
 // }
 
-void readCharByChar(char * file) {
+void readCharByChar(char * file, hash_table* table) {
     FILE *filePointer = NULL;
     
     int thisCharacter; // hold the value of current character
     char s[126];
+    // memset(s, 0, sizeof(s));    
     filePointer = fopen(file, "r");
     fseek(filePointer, 7, SEEK_CUR);
 
@@ -225,9 +264,7 @@ void readCharByChar(char * file) {
             // printf("%s\n", s);
 
             // if (thisCharacter == ' ') {
-            //     for (int i = 0; i < 129; i++) {
-            //         free(s[i]);
-            //     }
+            //     memset(s, 0, sizeof(s));    
             // }         
 
             
@@ -238,11 +275,15 @@ void readCharByChar(char * file) {
         } else {
 
             // KEYWORDS
-            // isKeyword(s);
+            //if (*s =! 0) {
+            isKeyword(s, table);
+                        //}
 
-            printf("%s\n", s);
+            // printf("%s\n", s);
 
             memset(s, 0, sizeof(s));
+
+            // }
 
         }
             // printf("s retornado: %s\n", s);
@@ -271,9 +312,22 @@ int main() {
     // }
     
     // free(line);
+
+    hash_table* symbol_table = hashTableCreate();
     
-    readCharByChar("cobol_code.cbl");
+    readCharByChar("cobol_code copy.cbl", symbol_table);
+
+    hti it = ht_iterator(symbol_table);
+    while (ht_next(&it)) {
+        printf("---------------------\n");
+        printf("%s %d\n", it.key, *(int*)it.value);
+        free(it.value);
+
+    }
+
+    // printf("%d\n", (int)ht_length(symbol_table));
     return 0;
+
     
 
 }
