@@ -231,7 +231,7 @@ void readCharByChar(char * file, hash_table* table) {
     
     int thisCharacter; // hold the value of current character
     char s[126];
-    // memset(s, 0, sizeof(s));    
+    memset(s, 0, sizeof(s)); // importante
     filePointer = fopen(file, "r");
     fseek(filePointer, 7, SEEK_CUR);
 
@@ -325,7 +325,7 @@ int main() {
 
     }
 
-    // printf("%d\n", (int)ht_length(symbol_table));
+    printf("%d\n", (int)ht_length(symbol_table));
     return 0;
 
     
