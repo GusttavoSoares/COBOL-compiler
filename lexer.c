@@ -102,13 +102,18 @@ void addToken(enum TokenCategory character, char lexeme) {
 }
 
 void addtohash(hash_table *table, char* lexeme) { 
-    printf("indo salvar o lexeme %s \n", lexeme);
+
     void* value = ht_get(table, lexeme);
 
     if (value != NULL) {
         int* pcount = (int*) value;
         (*pcount)++;
-    }
+        
+        if (ht_set(table, lexeme, pcount) == NULL) {
+            exit_nomem();
+        }
+
+    } else {
 
     int* pcount = malloc(sizeof(int));
 
@@ -116,10 +121,15 @@ void addtohash(hash_table *table, char* lexeme) {
         exit_nomem();
     }
 
-     *pcount = 1;
+    *pcount = 1;
+
     if (ht_set(table, lexeme, pcount) == NULL) {
         exit_nomem();
     }
+
+    }
+
+  
 }
 
 void isKeyword(char* lexeme, hash_table* table) {
@@ -137,7 +147,7 @@ void isKeyword(char* lexeme, hash_table* table) {
     else if (strcmp(lexeme, "PROCEDURE") == 0) {
         addtohash(table, lexeme);
     }
-    else if (strcmp(lexeme, "DIVISION.") == 0) {
+    else if (strcmp(lexeme, "DIVISION") == 0) {
         addtohash(table, lexeme);
     }
     else if (strcmp(lexeme, "SECTION") == 0) {
@@ -241,13 +251,15 @@ void readCharByChar(char * file, hash_table* table) {
     }
 
     while ((thisCharacter = fgetc(filePointer)) != EOF) {
+
         if (thisCharacter == '\n') {
             fseek(filePointer, 6, SEEK_CUR);
+            
         }
 
             // KEYWORDS OR IDENTIFICATION
             // printf("thischaraacter: %c\n", thisCharacter);
-        if (thisCharacter != ' ') {
+        if (thisCharacter != ' ' && thisCharacter != '.') {
             // while (*s++);
             char cToStr[2];
             cToStr[1] = '\0';
@@ -275,13 +287,14 @@ void readCharByChar(char * file, hash_table* table) {
         } else {
 
             // KEYWORDS
-            //if (*s =! 0) {
-            isKeyword(s, table);
-                        //}
+            if (*s != 0) {
+                isKeyword(s, table);
+                memset(s, 0, sizeof(s));
+            }
+                        
 
             // printf("%s\n", s);
 
-            memset(s, 0, sizeof(s));
 
             // }
 
@@ -315,9 +328,10 @@ int main() {
 
     hash_table* symbol_table = hashTableCreate();
     
-    readCharByChar("cobol_code copy.cbl", symbol_table);
+    readCharByChar("cobol_code.cbl", symbol_table);
 
     hti it = ht_iterator(symbol_table);
+    printf("---------------------\n");
     while (ht_next(&it)) {
         printf("---------------------\n");
         printf("%s %d\n", it.key, *(int*)it.value);
@@ -325,7 +339,7 @@ int main() {
 
     }
 
-    printf("%d\n", (int)ht_length(symbol_table));
+    printf("len: %d\n", (int)ht_length(symbol_table));
     return 0;
 
     
