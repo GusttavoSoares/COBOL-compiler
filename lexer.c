@@ -366,7 +366,7 @@ void readCharByChar(char * file) {
     bool isInQuotationMarks = false; // check if is in a quotation mark, like DISPLAY "===== start =======".
     
     int thisCharacter; // hold the value of current character
-    char s[126];
+    char s[30];
     memset(s, 0, sizeof(s)); // importante
     filePointer = fopen(file, "r");
     fseek(filePointer, 6, SEEK_CUR);
@@ -384,13 +384,13 @@ void readCharByChar(char * file) {
         // long position = ftell(filePointer);
         // printf("columnCounterPosition %d\n", columnCounterPosition);
 
-        if (columnCounterPosition % 6 == 0) {
+        // if (columnCounterPosition % 6 == 0) {
             // printf("character que entrou %d\n", thisCharacter);
             if (thisCharacter == '*') {
                 // printf("aqui nunca entrou");
                 
                 while ((thisCharacter = fgetc(filePointer)) != '\n') {
-                    // printf("character atual %c", thisCharacter);
+                    // printf("character atual %c\n", thisCharacter);
                     // fseek(filePointer, 6, SEEK_CUR);
                 }
 
@@ -400,17 +400,18 @@ void readCharByChar(char * file) {
                 // }
 
             }
-        }
+        // }
 
         if (thisCharacter == '\n') {
-            columnCounterPosition =+ 6;
+            // columnCounterPosition =+ 6;
             fseek(filePointer, 5, SEEK_CUR); // avanca apenas 5 para conseguir somente na proxima interacao pegar o * e realziar as coisas necessarfias
             thisCharacter = fgetc(filePointer);
+            continue;
         }
 
 
         if (thisCharacter == '"') {
-            printf("entreou aqui %d\n", thisCharacter);
+            // printf("entreou aqui %d\n", thisCharacter);
             if (isInQuotationMarks == true) {
                 isInQuotationMarks = false;
             } else { 
@@ -442,6 +443,8 @@ void readCharByChar(char * file) {
             // printf("ASCIC %s\n", cToStr);
             // char* teste = asciC[0];
             strcat(s, cToStr);
+
+            // printf("character atual %c\n", thisCharacter);
             }
 
             // s eh a palavrfa final
@@ -479,7 +482,7 @@ void readCharByChar(char * file) {
         // printf("%c", thisCharacter);
 
     }
-
+    fclose(filePointer);
 }
 
 int main() {
