@@ -67,11 +67,17 @@ bool isUserDefinedWord(char* lexeme) {
 }
 
 bool isNumber(char* lexeme) {
-    for (int i = 0; lexeme[i] != '\0'; i++) {
+    for (int i = 1; lexeme[i] != '\0'; i++) {
         if (!isdigit(lexeme[i])) 
         return false;
     } 
     return true;
+}
+
+bool isNumberWithSigned(char* lexeme) {
+    if (lexeme[0] == '-' || lexeme[0] == '+' )
+        return true;
+    return false;
 }
 
 bool isAlphaNumeric(char* lexeme) {
@@ -104,6 +110,13 @@ bool isLeftParenthesis (char * lexeme) {
 
 bool isRightParenthesis (char * lexeme) {
     if (strcmp(lexeme, ")")) {
+        return true;
+    }
+    return false;
+}
+
+bool isMinus (char * lexeme) {
+    if (strcmp(lexeme, "-")) {
         return true;
     }
     return false;
@@ -200,11 +213,28 @@ void  defineTokenCategory(char* lexeme ){
 
 
         } else if (isNumber(lexeme)) {
+            char* numericlexeme;
+            if (isNumberWithSigned(lexeme)) {
+
+                if (lexeme[0] == '-') {
+                    addToken("MINUS", "-");
+                } else {
+                    addToken("PLUS", "+");
+                }
+
+               
+                strcpy(numericlexeme, lexeme + 1);
+                addToken("NUMERIC", numericlexeme);
+            } else {
             addToken("NUMERIC", lexeme);
+            }
+
         } else if (isLeftParenthesis(lexeme)) {
             addToken("LPARENTHESIS", lexeme);
         } else if (isRightParenthesis(lexeme)) {
             addToken("RPARENTHESIS", lexeme);
+        } else if (isMinus(lexeme)) {
+            addToken("MINUS", lexeme);
         }
 
     // switch (keyword) {
@@ -474,7 +504,7 @@ int main() {
 
     // hash_table* symbol_table = hashTableCreate();
     
-    readCharByChar("cobol_code copy.cbl");
+    readCharByChar("cobol_code.cbl");
 
     // hti it = ht_iterator(symbol_table);
     // printf("---------------------\n");
