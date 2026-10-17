@@ -132,7 +132,7 @@ char* isKeyword(char* lexeme) {
         return "MOVE";
     }
     else {
-        return "NOT";
+        return NULL;
     
         //printf("adicionado user defined word %s\n", lexeme);
     }
@@ -154,10 +154,10 @@ void  defineTokenCategory(char* lexeme ){
 
     char* keyword = isKeyword(lexeme);
 
-    if (strcmp(keyword, "NOT") != 0)
+    if (keyword != NULL) {
         addToken(keyword, lexeme);
-
-    else {
+ 
+    } else {
     // printf("erro aaa");
 
         bool isUserDefinedWord_bool = isUserDefinedWord(lexeme); // lembrar do cuidado com o hifen
@@ -172,11 +172,6 @@ void  defineTokenCategory(char* lexeme ){
     
     }
 
-
-
-    addToken(keyword, lexeme);
-
-    
     // switch (keyword) {
     //     case IDENTIFICATION: lexeme; break;
     //     case ENVIRONMENT: printf("ENVIRONMENT"); break;
