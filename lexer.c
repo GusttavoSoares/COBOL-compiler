@@ -26,8 +26,6 @@ enum TokenCategory {
     PLUS,
     MINUS,
     DOT,
-    SINGLE_QUOTATION,
-    DOUBLE_QUOTATION,
 
     // Identifiers
     IDENTIFIER,
@@ -50,13 +48,13 @@ bool isUserDefinedWord(char* lexeme) {
     char first = lexeme[0];
     char last;
 
-    if (first == '-')
+    if (first == '-' || first == '"')
         return false;
 
     for (int i = 0; lexeme[i] != '\0'; i++) {
         if (lexeme[i+1] == '\0') {
             last = lexeme[i];
-            if (last == '-') 
+            if (last == '-' || first == '"') 
             return false;
         } 
     }
@@ -75,6 +73,42 @@ bool isNumber(char* lexeme) {
     } 
     return true;
 }
+
+bool isAlphaNumeric(char* lexeme) {
+    char first = lexeme[0];
+    char last;
+
+    if (first != '"')
+    return false;
+
+
+    for (int i = 0; lexeme[i] != '\0'; i++) {
+        if (lexeme[i+1] == '\0') {
+            last = lexeme[i];
+            if (last != '"') 
+            return false;
+        } 
+    }
+
+    return true;
+
+}
+
+bool isLeftParenthesis (char * lexeme) {
+    if (strcmp(lexeme, "(")) {
+        return true;
+    }
+    return false;
+}
+
+
+bool isRightParenthesis (char * lexeme) {
+    if (strcmp(lexeme, ")")) {
+        return true;
+    }
+    return false;
+}
+
 
 struct Token{
     char* tokencategory;
@@ -133,8 +167,6 @@ char* isKeyword(char* lexeme) {
     }
     else {
         return NULL;
-    
-        //printf("adicionado user defined word %s\n", lexeme);
     }
 }
 
@@ -149,9 +181,6 @@ void addToken(char* tokencategory, char* lexeme) {
 
 // Essa função precisa returnar String e não print
 void  defineTokenCategory(char* lexeme ){
-    printf("oi");
-    
-
     char* keyword = isKeyword(lexeme);
 
     if (keyword != NULL) {
@@ -160,17 +189,23 @@ void  defineTokenCategory(char* lexeme ){
     } else {
     // printf("erro aaa");
 
-        bool isUserDefinedWord_bool = isUserDefinedWord(lexeme); // lembrar do cuidado com o hifen
+        bool isUserDefinedWord_bool = isUserDefinedWord(lexeme);
 
         if (isUserDefinedWord_bool) {
             addToken("IDENTIFIER", lexeme);
 
+        } else if (isAlphaNumeric(lexeme)) {
+            addToken("ALPHANUMERIC", lexeme);
+        
+
 
         } else if (isNumber(lexeme)) {
             addToken("NUMERIC", lexeme);
+        } else if (isLeftParenthesis(lexeme)) {
+            addToken("LPARENTHESIS", lexeme);
+        } else if (isRightParenthesis(lexeme)) {
+            addToken("RPARENTHESIS", lexeme);
         }
-    
-    }
 
     // switch (keyword) {
     //     case IDENTIFICATION: lexeme; break;
@@ -205,7 +240,7 @@ void  defineTokenCategory(char* lexeme ){
     //     default: printf("Error"); break;
     // }
 
-    
+}
 }
 
  
@@ -298,6 +333,7 @@ void  defineTokenCategory(char* lexeme ){
 void readCharByChar(char * file) {
     FILE *filePointer = NULL;
     int columnCounterPosition = 0;
+    bool isInQuotationMarks = false; // check if is in a quotation mark, like DISPLAY "===== start =======".
     
     int thisCharacter; // hold the value of current character
     char s[126];
@@ -340,14 +376,32 @@ void readCharByChar(char * file) {
             columnCounterPosition =+ 6;
             fseek(filePointer, 5, SEEK_CUR); // avanca apenas 5 para conseguir somente na proxima interacao pegar o * e realziar as coisas necessarfias
             thisCharacter = fgetc(filePointer);
-            // printf("avancou dentro %d", thisCharacter);
         }
 
-            // KEYWORDS OR IDENTIFICATION
-            // printf("thischaraacter: %c\n", thisCharacter);
 
+        if (thisCharacter == '"') {
+            printf("entreou aqui %d\n", thisCharacter);
+            if (isInQuotationMarks == true) {
+                isInQuotationMarks = false;
+            } else { 
+                isInQuotationMarks = true;
+            }
+
+            printf("bool value %d", isInQuotationMarks);
+        }
         
-        if (thisCharacter != ' ' && thisCharacter != '.' && thisCharacter != '*') {
+        if (isInQuotationMarks) {
+            char cToStr[2];
+            cToStr[1] = '\0';
+
+            if (thisCharacter != '\n') {
+            cToStr[0] = (char) thisCharacter;
+            
+            // printf("ASCIC %s\n", cToStr);
+            // char* teste = asciC[0];
+            strcat(s, cToStr);
+            }
+        } else if (thisCharacter != ' ' && thisCharacter != '.' && thisCharacter != '*' && thisCharacter != '(' && thisCharacter != ')' && !isInQuotationMarks) {
             // while (*s++);
             char cToStr[2];
             cToStr[1] = '\0';
@@ -376,15 +430,18 @@ void readCharByChar(char * file) {
 
             // KEYWORDS
             if (*s != 0) {
-                printf("oi");
+
                 defineTokenCategory(s);
+
+                if (thisCharacter == '(')
+                defineTokenCategory("(");
+
+                if (thisCharacter == ')')
+                defineTokenCategory(")");
+
                 memset(s, 0, sizeof(s));
             }
                         
-
-            // printf("%s\n", s);
-
-
             // }
 
         }
