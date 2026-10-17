@@ -133,7 +133,7 @@ void addtohash(hash_table *table, char* lexeme) {
 }
 
 void isKeyword(char* lexeme, hash_table* table) {
-    printf("lexeme que chegou %s\n", lexeme);
+    //printf("lexeme que chegou %s\n", lexeme);
 
     if (strcmp(lexeme, "IDENTIFICATION") == 0) {
        addtohash(table, lexeme);
@@ -178,13 +178,15 @@ void isKeyword(char* lexeme, hash_table* table) {
         addtohash(table, lexeme);
     }
     else {
-        printf(lexeme, "\n");
+        // Se não, é um Identificador (User-Defined words)
+        //addtohash(table, lexeme);
+        ;
+        //printf("adicionado user defined word %s\n", lexeme);
     }
 
 
 
 }
-
 
 
 void scanLine4Token(char c) {
@@ -238,28 +240,57 @@ void scanLine4Token(char c) {
 
 void readCharByChar(char * file, hash_table* table) {
     FILE *filePointer = NULL;
+    int columnCounterPosition = 0;
     
     int thisCharacter; // hold the value of current character
     char s[126];
     memset(s, 0, sizeof(s)); // importante
     filePointer = fopen(file, "r");
-    fseek(filePointer, 7, SEEK_CUR);
+    fseek(filePointer, 6, SEEK_CUR);
+    columnCounterPosition = ftell(filePointer);
+    // printf("columncounter position %d", columnCounterPosition);
 
+    
+    
     if (filePointer == NULL) {
         perror("Error in file pointer ");
         // return -1;
     }
-
+    
     while ((thisCharacter = fgetc(filePointer)) != EOF) {
+        // long position = ftell(filePointer);
+        // printf("columnCounterPosition %d\n", columnCounterPosition);
+
+        if (columnCounterPosition % 6 == 0) {
+            printf("character que entrou %d\n", thisCharacter);
+            if (thisCharacter == '*') {
+                // printf("aqui nunca entrou");
+                
+                while ((thisCharacter = fgetc(filePointer)) != '\n') {
+                    // printf("character atual %c", thisCharacter);
+                    // fseek(filePointer, 6, SEEK_CUR);
+                }
+
+                // printf("character atual chegou %c", thisCharacter);
+                // if (thisCharacter == '\n') {
+                //     fseek(filePointer, 6, SEEK_CUR);
+                // }
+
+            }
+        }
 
         if (thisCharacter == '\n') {
-            fseek(filePointer, 6, SEEK_CUR);
-            
+            columnCounterPosition =+ 6;
+            fseek(filePointer, 5, SEEK_CUR); // avanca apenas 5 para conseguir somente na proxima interacao pegar o * e realziar as coisas necessarfias
+            thisCharacter = fgetc(filePointer);
+            printf("avancou dentro %d", thisCharacter);
         }
 
             // KEYWORDS OR IDENTIFICATION
             // printf("thischaraacter: %c\n", thisCharacter);
-        if (thisCharacter != ' ' && thisCharacter != '.') {
+
+        
+        if (thisCharacter != ' ' && thisCharacter != '.' && thisCharacter != '*') {
             // while (*s++);
             char cToStr[2];
             cToStr[1] = '\0';
@@ -273,7 +304,7 @@ void readCharByChar(char * file, hash_table* table) {
             }
 
             // s eh a palavrfa final
-            // printf("%s\n", s);
+            printf("%s\n", s);
 
             // if (thisCharacter == ' ') {
             //     memset(s, 0, sizeof(s));    
@@ -330,16 +361,16 @@ int main() {
     
     readCharByChar("cobol_code.cbl", symbol_table);
 
-    hti it = ht_iterator(symbol_table);
-    printf("---------------------\n");
-    while (ht_next(&it)) {
-        printf("---------------------\n");
-        printf("%s %d\n", it.key, *(int*)it.value);
-        free(it.value);
+    // hti it = ht_iterator(symbol_table);
+    // printf("---------------------\n");
+    // while (ht_next(&it)) {
+    //     printf("---------------------\n");
+    //     printf("%s %d\n", it.key, *(int*)it.value);
+    //     free(it.value);
 
-    }
+    // }
 
-    printf("len: %d\n", (int)ht_length(symbol_table));
+    // printf("len: %d\n", (int)ht_length(symbol_table));
     return 0;
 
     
