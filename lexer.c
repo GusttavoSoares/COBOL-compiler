@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "hashtable.h"
+#include <ctype.h>
+#include <stdbool.h>
 
 enum TokenCategory {
     // Reserved Keywords
@@ -43,202 +45,262 @@ enum TokenCategory {
 
 };
 
+// Problematica se colocar @ no meio, ajeitar depois
+bool isUserDefinedWord(char* lexeme) {
+    char first = lexeme[0];
+    char last;
+
+    if (first == '-')
+        return false;
+
+    for (int i = 0; lexeme[i] != '\0'; i++) {
+        if (lexeme[i+1] == '\0') {
+            last = lexeme[i];
+            if (last == '-') 
+            return false;
+        } 
+    }
+
+    for (int i = 0; lexeme[i] != '\0'; i++) {
+        if (isalpha(lexeme[i])) 
+        return true;
+    } 
+    return false;
+}
+
+bool isNumber(char* lexeme) {
+    for (int i = 0; lexeme[i] != '\0'; i++) {
+        if (!isdigit(lexeme[i])) 
+        return false;
+    } 
+    return true;
+}
+
+struct Token{
+    char* tokencategory;
+    char* lexeme;
+};
+
 void exit_nomem(void) {
     fprintf(stderr, "out of memory\n");
     exit(1);
 }
 
+char* isKeyword(char* lexeme) {
+    //printf("lexeme que chegou %s\n", lexeme);
 
-// Essa função precisa returnar String e não print
-void printTokenCategory (enum TokenCategory category, hash_table* table, char* lexeme ){
-
- 
-    switch (category) {
-        case IDENTIFICATION: lexeme; break;
-        case ENVIRONMENT: printf("ENVIRONMENT"); break;
-        case DATA: printf("DATA"); break;
-        case PROCEDURE: printf("PROCEDURE"); break;
-        case DIVISION: printf("DIVISION"); break;
-        case SECTION: printf("SECTION"); break;
-        case DISPLAY: printf("DISPLAY"); break;
-        case ACCEPT: printf("ACCEPT"); break;
-        case PERFORM: printf("PERFORM"); break;
-        case STOP: printf("STOP"); break;
-        case RUN: printf("RUN"); break;
-        case IF: printf("IF"); break;
-        case ELSE: printf("ELSE"); break;
-        case MOVE: printf("MOVE"); break;
-        case PLUS: printf("PLUS"); break;
-        case MINUS: printf("MINUS"); break;
-        case DOT: printf("DOT"); break;
-        case SINGLE_QUOTATION: printf("SINGLE_QUOTATION"); break;
-        case DOUBLE_QUOTATION: printf("DOUBLE_QUOTATION"); break;
-        case IDENTIFIER: printf("IDENTIFIER"); break;
-        case ALPHANUMERIC: printf("ALPHANUMERIC"); break;
-        case NUMERIC: printf("NUMERIC"); break;
-        case COMMA: printf("COMMA"); break;
-        case SEMICOLON: printf("SEMICOLON"); break;
-        case L_PARENTHESIS: printf("L_PARENTHESIS"); break;
-        case R_PARENTHESIS: printf("R_PARENTHESIS"); break;
-        case SLASH: printf("SLASH"); break;
-        case ASTERISK: printf("ASTERISK"); break;
-        case DEPURATION: printf("DEPURATION"); break;
-        default: printf("Error"); break;
+    if (strcmp(lexeme, "IDENTIFICATION") == 0) {
+       return "IDENTIFICATION";
     }
-
+    else if (strcmp(lexeme, "ENVIRONMENT") == 0) {
+        return "ENVIRONMENT";
+    }
+    else if (strcmp(lexeme, "DATA") == 0) {
+        return "DATA";
+    }
+    else if (strcmp(lexeme, "PROCEDURE") == 0) {
+        return "PROCEDURE";
+    }
+    else if (strcmp(lexeme, "DIVISION") == 0) {
+        return "DIVISION";
+    }
+    else if (strcmp(lexeme, "SECTION") == 0) {
+        return "SECTION";
+    }
+    else if (strcmp(lexeme, "DISPLAY") == 0) {
+        return "DISPLAY";
+    }
+    else if (strcmp(lexeme, "ACCEPT") == 0) {
+        return "ACCEPT";
+    }
+    else if (strcmp(lexeme, "PERFORM") == 0) {
+        return "PERFORM";
+    }
+    else if (strcmp(lexeme, "STOP") == 0) {
+        return "STOP";
+    }
+    else if (strcmp(lexeme, "RUN") == 0) {
+        return "RUN";
+    }
+    else if (strcmp(lexeme, "IF") == 0) {
+        return "IF";
+    }
+    else if (strcmp(lexeme, "ELSE") == 0) {
+        return "ELSE";
+    }
+    else if (strcmp(lexeme, "MOVE") == 0) {
+        return "MOVE";
+    }
+    else {
+        return "NOT";
     
+        //printf("adicionado user defined word %s\n", lexeme);
+    }
 }
 
-typedef struct {
-    enum TokenCategory tokencategory;
-    char* lexeme;
-
-} Token;
-
-void addToken(enum TokenCategory character, char lexeme) { 
-    enum TokenCategory category = character;
+void addToken(char* tokencategory, char* lexeme) { 
+    // enum TokenCategory category = character;
+   struct Token t = { tokencategory, lexeme};
+   printf("Token category: %s ", t.tokencategory);
+   printf("Token lexeme: %s\n", t.lexeme);
     // 
     // printTokenCategory(category);
 }
 
-void addtohash(hash_table *table, char* lexeme) { 
+// Essa função precisa returnar String e não print
+void  defineTokenCategory(char* lexeme ){
+    printf("oi");
+    
 
-    void* value = ht_get(table, lexeme);
+    char* keyword = isKeyword(lexeme);
 
-    if (value != NULL) {
-        int* pcount = (int*) value;
-        (*pcount)++;
-        
-        if (ht_set(table, lexeme, pcount) == NULL) {
-            exit_nomem();
+    if (strcmp(keyword, "NOT") != 0)
+        addToken(keyword, lexeme);
+
+    else {
+    // printf("erro aaa");
+
+        bool isUserDefinedWord_bool = isUserDefinedWord(lexeme); // lembrar do cuidado com o hifen
+
+        if (isUserDefinedWord_bool) {
+            addToken("IDENTIFIER", lexeme);
+
+
+        } else if (isNumber(lexeme)) {
+            addToken("NUMERIC", lexeme);
         }
-
-    } else {
-
-    int* pcount = malloc(sizeof(int));
-
-    if (pcount == NULL) {
-        exit_nomem();
+    
     }
 
-    *pcount = 1;
 
-    if (ht_set(table, lexeme, pcount) == NULL) {
-        exit_nomem();
-    }
 
-    }
+    addToken(keyword, lexeme);
+
+    
+    // switch (keyword) {
+    //     case IDENTIFICATION: lexeme; break;
+    //     case ENVIRONMENT: printf("ENVIRONMENT"); break;
+    //     case DATA: printf("DATA"); break;
+    //     case PROCEDURE: printf("PROCEDURE"); break;
+    //     case DIVISION: printf("DIVISION"); break;
+    //     case SECTION: printf("SECTION"); break;
+    //     case DISPLAY: printf("DISPLAY"); break;
+    //     case ACCEPT: printf("ACCEPT"); break;
+    //     case PERFORM: printf("PERFORM"); break;
+    //     case STOP: printf("STOP"); break;
+    //     case RUN: printf("RUN"); break;
+    //     case IF: printf("IF"); break;
+    //     case ELSE: printf("ELSE"); break;
+    //     case MOVE: printf("MOVE"); break;
+    //     case PLUS: printf("PLUS"); break;
+    //     case MINUS: printf("MINUS"); break;
+    //     case DOT: printf("DOT"); break;
+    //     case SINGLE_QUOTATION: printf("SINGLE_QUOTATION"); break;
+    //     case DOUBLE_QUOTATION: printf("DOUBLE_QUOTATION"); break;
+    //     case IDENTIFIER: printf("IDENTIFIER"); break;
+    //     case ALPHANUMERIC: printf("ALPHANUMERIC"); break;
+    //     case NUMERIC: printf("NUMERIC"); break;
+    //     case COMMA: printf("COMMA"); break;
+    //     case SEMICOLON: printf("SEMICOLON"); break;
+    //     case L_PARENTHESIS: printf("L_PARENTHESIS"); break;
+    //     case R_PARENTHESIS: printf("R_PARENTHESIS"); break;
+    //     case SLASH: printf("SLASH"); break;
+    //     case ASTERISK: printf("ASTERISK"); break;
+    //     case DEPURATION: printf("DEPURATION"); break;
+    //     default: printf("Error"); break;
+    // }
+
+    
+}
+
+ 
+
+
+
+// void addtohash(hash_table *table, struct Token token) { 
+
+//     void* value = ht_get(table, token);
+
+//     if (value != NULL) {
+//         int* pcount = (int*) value;
+//         (*pcount)++;
+        
+//         if (ht_set(table, token, pcount) == NULL) {
+//             exit_nomem();
+//         }
+
+//     } else {
+
+//     int* pcount = malloc(sizeof(int));
+
+//     if (pcount == NULL) {
+//         exit_nomem();
+//     }
+
+//     *pcount = 1;
+
+//     if (ht_set(table, token, pcount) == NULL) {
+//         exit_nomem();
+//     }
+
+//     }
 
   
-}
-
-void isKeyword(char* lexeme, hash_table* table) {
-    //printf("lexeme que chegou %s\n", lexeme);
-
-    if (strcmp(lexeme, "IDENTIFICATION") == 0) {
-       addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "ENVIRONMENT") == 0) {
-        addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "DATA") == 0) {
-        addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "PROCEDURE") == 0) {
-        addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "DIVISION") == 0) {
-        addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "SECTION") == 0) {
-        addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "DISPLAY") == 0) {
-        addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "ACCEPT") == 0) {
-        addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "PERFORM") == 0) {
-        addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "STOP") == 0) {
-        addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "RUN") == 0) {
-        addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "IF") == 0) {
-        addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "ELSE") == 0) {
-        addtohash(table, lexeme);
-    }
-    else if (strcmp(lexeme, "MOVE") == 0) {
-        addtohash(table, lexeme);
-    }
-    else {
-        // Se não, é um Identificador (User-Defined words)
-        //addtohash(table, lexeme);
-        ;
-        //printf("adicionado user defined word %s\n", lexeme);
-    }
+// }
 
 
 
-}
 
+// void scanLine4Token(char c) {
+//     switch (c) {
+//         case '+': 
+//             addToken(PLUS, c);
+//             break;
 
-void scanLine4Token(char c) {
-    switch (c) {
-        case '+': 
-            addToken(PLUS, c);
-            break;
+//         case '-':
+//             addToken(MINUS, c);
+//             break;
 
-        case '-':
-            addToken(MINUS, c);
-            break;
+//         case '.':
+//             addToken(DOT, c);
+//             break;
 
-        case '.':
-            addToken(DOT, c);
-            break;
+//         case ',':
+//             addToken(COMMA, c);
+//             break;
 
-        case ',':
-            addToken(COMMA, c);
-            break;
+//         case ';':
+//             addToken(SEMICOLON, c);
+//             break;
 
-        case ';':
-            addToken(SEMICOLON, c);
-            break;
+//         case '*':
+//             addToken(ASTERISK, c);
+//             break;
 
-        case '*':
-            addToken(ASTERISK, c);
-            break;
+//         case '/':
+//             addToken(SLASH, c);
+//             break;
 
-        case '/':
-            addToken(SLASH, c);
-            break;
+//         case '(':
+//             addToken(L_PARENTHESIS, c);
+//             break;
 
-        case '(':
-            addToken(L_PARENTHESIS, c);
-            break;
+//         case ')':
+//             addToken(R_PARENTHESIS, c);
+//             break;
 
-        case ')':
-            addToken(R_PARENTHESIS, c);
-            break;
+//         default:
+//             printf("erro");
+//             break;
 
-        default:
-            printf("erro");
-            break;
-
-    }
-}
+//     }
+// }
 
 // str_append(char *s, char buffer) {
 
 // }
 
-void readCharByChar(char * file, hash_table* table) {
+void readCharByChar(char * file) {
     FILE *filePointer = NULL;
     int columnCounterPosition = 0;
     
@@ -262,7 +324,7 @@ void readCharByChar(char * file, hash_table* table) {
         // printf("columnCounterPosition %d\n", columnCounterPosition);
 
         if (columnCounterPosition % 6 == 0) {
-            printf("character que entrou %d\n", thisCharacter);
+            // printf("character que entrou %d\n", thisCharacter);
             if (thisCharacter == '*') {
                 // printf("aqui nunca entrou");
                 
@@ -283,7 +345,7 @@ void readCharByChar(char * file, hash_table* table) {
             columnCounterPosition =+ 6;
             fseek(filePointer, 5, SEEK_CUR); // avanca apenas 5 para conseguir somente na proxima interacao pegar o * e realziar as coisas necessarfias
             thisCharacter = fgetc(filePointer);
-            printf("avancou dentro %d", thisCharacter);
+            // printf("avancou dentro %d", thisCharacter);
         }
 
             // KEYWORDS OR IDENTIFICATION
@@ -304,7 +366,7 @@ void readCharByChar(char * file, hash_table* table) {
             }
 
             // s eh a palavrfa final
-            printf("%s\n", s);
+            // printf("%s\n", s);
 
             // if (thisCharacter == ' ') {
             //     memset(s, 0, sizeof(s));    
@@ -319,7 +381,8 @@ void readCharByChar(char * file, hash_table* table) {
 
             // KEYWORDS
             if (*s != 0) {
-                isKeyword(s, table);
+                printf("oi");
+                defineTokenCategory(s);
                 memset(s, 0, sizeof(s));
             }
                         
@@ -357,9 +420,9 @@ int main() {
     
     // free(line);
 
-    hash_table* symbol_table = hashTableCreate();
+    // hash_table* symbol_table = hashTableCreate();
     
-    readCharByChar("cobol_code.cbl", symbol_table);
+    readCharByChar("cobol_code copy.cbl");
 
     // hti it = ht_iterator(symbol_table);
     // printf("---------------------\n");
