@@ -43,6 +43,33 @@ enum TokenCategory {
 
 };
 
+char * remove_space(char * lexeme) {
+    char *output = lexeme;
+    do {
+        while(*output == ' ') {
+            ++output;
+        }
+    } while (*lexeme++ = *output++);
+    
+    return output;
+
+}
+// Error Handling 
+// Inspiration - https://www.lowlevelcraft.com/tasks/lexer-error-handling
+
+bool isInvalidCharacter(char *lexeme) {
+    // printf("entrou aqui");
+    for (int i = 0; lexeme[i] != '\0'; i++) {
+        if (!isalnum(lexeme[i]));
+        return false;
+    }
+    return true;
+}
+
+bool isUnderterminatedString(char *lexeme) {}
+
+bool isInvalidNumber(char *lexeme) {}
+
 // Problematica se colocar @ no meio, ajeitar depois
 bool isUserDefinedWord(char* lexeme) {
     char first = lexeme[0];
@@ -60,10 +87,19 @@ bool isUserDefinedWord(char* lexeme) {
     }
 
     for (int i = 0; lexeme[i] != '\0'; i++) {
-        if (isalpha(lexeme[i])) 
-        return true;
-    } 
-    return false;
+        char* output = remove_space(lexeme);
+        if (isInvalidCharacter(output)) {
+
+        for (int i = 1; lexeme[i] != '\0'; i++) {
+            if (!isalnum(lexeme[i])) {
+                printf("erro no caractere %c\n", lexeme[i]);  // esta identificando - como errado, mas deve permitir
+                return false;
+            }
+        }
+        return false;
+        } 
+    }
+    return true;
 }
 
 bool isNumber(char* lexeme) {
@@ -96,6 +132,7 @@ bool isAlphaNumeric(char* lexeme) {
         } 
     }
 
+   
     return true;
 
 }
@@ -156,6 +193,8 @@ bool isGreater (char * lexeme) {
     }
     return false;
 }
+
+
 
 
 struct Token{
