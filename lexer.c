@@ -101,7 +101,8 @@ bool isAlphaNumeric(char* lexeme) {
 }
 
 bool isLeftParenthesis (char * lexeme) {
-    if (strcmp(lexeme, "(")) {
+    printf("entrou esse: %s\n", lexeme);
+    if (strcmp(lexeme, "(") == 0) {
         return true;
     }
     return false;
@@ -109,19 +110,57 @@ bool isLeftParenthesis (char * lexeme) {
 
 
 bool isRightParenthesis (char * lexeme) {
-    if (strcmp(lexeme, ")")) {
+    if (strcmp(lexeme, ")") == 0) {
         return true;
     }
     return false;
 }
 
 bool isMinus (char * lexeme) {
-    if (strcmp(lexeme, "-")) {
+    if (strcmp(lexeme, "-") == 0) {
         return true;
     }
     return false;
 }
 
+bool isEqual (char * lexeme) {
+    if (strcmp(lexeme, "=") == 0) {
+        return true;
+    }
+    return false;
+}
+
+bool isLess (char * lexeme) {
+    if (strcmp(lexeme, "<" ) == 0) {
+        return true;
+    }
+    return false;
+}
+
+bool isEqualOrLess (char * lexeme) {
+    if (strcmp(lexeme, "<=") == 0) {
+        return true;
+    }
+    return false;
+}
+
+bool isEqualOrGreater (char * lexeme) {
+    if (strcmp(lexeme, ">=") == 0) {
+        return true;
+    }
+    return false;
+}
+
+bool isGreater (char * lexeme) {
+    if (strcmp(lexeme, ">") == 0) {
+        return true;
+    }
+    return false;
+}
+
+
+
+// =, >=, >, <, <= e quando inicia com - na coluna 8 para delimitar
 
 struct Token{
     char* tokencategory;
@@ -208,34 +247,40 @@ void  defineTokenCategory(char* lexeme ){
             addToken("IDENTIFIER", lexeme);
 
         } else if (isAlphaNumeric(lexeme)) {
-            addToken("ALPHANUMERIC", lexeme);
-        
-
-
-        } else if (isNumber(lexeme)) {
-            char* numericlexeme;
-            if (isNumberWithSigned(lexeme)) {
-
-                if (lexeme[0] == '-') {
-                    addToken("MINUS", "-");
-                } else {
-                    addToken("PLUS", "+");
-                }
-
-               
-                strcpy(numericlexeme, lexeme + 1);
-                addToken("NUMERIC", numericlexeme);
-            } else {
-            addToken("NUMERIC", lexeme);
-            }
-
+            addToken("ALPHANUMERIC", lexeme);            
+        } else if (isEqual(lexeme)) {
+            addToken("EQUAL", lexeme);
+        } else if (isLess(lexeme)) {
+            addToken("LESS", lexeme);
+        } else if (isEqualOrLess(lexeme)) {
+            addToken("EQUALORLESS", lexeme);
+        } else if (isEqualOrGreater(lexeme)) {
+        addToken("EQUALORGREATER", lexeme);
+        } else if (isGreater(lexeme)) {
+            addToken("GREATERTHAN", lexeme);
         } else if (isLeftParenthesis(lexeme)) {
             addToken("LPARENTHESIS", lexeme);
         } else if (isRightParenthesis(lexeme)) {
             addToken("RPARENTHESIS", lexeme);
         } else if (isMinus(lexeme)) {
             addToken("MINUS", lexeme);
+        }  else if (isNumber(lexeme)) {
+            char* numericlexeme;
+            if (isNumberWithSigned(lexeme)) {
+                if (lexeme[0] == '-') {
+                    addToken("MINUS", "-");
+                } else {
+                    addToken("PLUS", "+");
+                }
+
+                strcpy(numericlexeme, lexeme + 1);
+                addToken("NUMERIC", numericlexeme);
+            } else {
+            addToken("NUMERIC", lexeme);
+            }
         }
+
+
 
     // switch (keyword) {
     //     case IDENTIFICATION: lexeme; break;
