@@ -268,9 +268,7 @@ void readCharByChar(char * file) {
     memset(s, 0, sizeof(s)); // importante
     filePointer = fopen(file, "r");
     fseek(filePointer, 6, SEEK_CUR);
-    columnCounterPosition = ftell(filePointer);
-    printf("columncounter position1 %d\n", columnCounterPosition);
-
+    columnCounterPosition = ftell(filePointer) + 1;
     
     if (filePointer == NULL) {
         perror("Error in file pointer ");
@@ -278,28 +276,17 @@ void readCharByChar(char * file) {
     }
     
     while ((thisCharacter = fgetc(filePointer)) != EOF) {
-        columnCounterPosition = ftell(filePointer);
-
-            if (thisCharacter == '*') {
-
-                
-                while ((thisCharacter = fgetc(filePointer)) != '\n') {
-                    columnCounterPosition = ftell(filePointer);
-                }
-
-                columnCounterPosition = ftell(filePointer);
-                printf("contador de coluna3 %d", columnCounterPosition);
-            }
+        
+        if (thisCharacter == '*') {
+            while ((thisCharacter = fgetc(filePointer)) != '\n') {}
+        }
 
         if (thisCharacter == '\n') {
             fseek(filePointer, 5, SEEK_CUR); // avanca apenas 5 para conseguir somente na proxima interacao pegar o * e realziar as coisas necessarfias
             thisCharacter = fgetc(filePointer);
-             printf("contador de coluna4 antes %d\n", columnCounterPosition);
-            columnCounterPosition = 0;
-            printf("contador de coluna4 %d\n", columnCounterPosition);
+            columnCounterPosition = 6;
             continue;
         }
-
 
         if (thisCharacter == '"') {
             if (isInQuotationMarks == true) {
@@ -324,14 +311,11 @@ void readCharByChar(char * file) {
             cToStr[1] = '\0';
 
             if (thisCharacter != '\n') {
-            cToStr[0] = (char) thisCharacter;
-            
-            strcat(s, cToStr);
-
+                cToStr[0] = (char) thisCharacter;
+                strcat(s, cToStr);
             }
 
         } else {
-
             // KEYWORDS
             if (*s != 0) {
 
@@ -345,13 +329,16 @@ void readCharByChar(char * file) {
 
                 memset(s, 0, sizeof(s));
             }
-                        
-            // }
-
         }
 
+        columnCounterPosition++;
+        // APenas teste
+        if (thisCharacter == '@') {
+            columnCounterPosition++;
+            printf("@ está na coluna %d\n", columnCounterPosition);
+        }
     }
-    printf("contador de coluna %d", columnCounterPosition);
+    
     fclose(filePointer);
 }
 
