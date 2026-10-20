@@ -276,10 +276,26 @@ void readCharByChar(char * file) {
     }
     
     while ((thisCharacter = fgetc(filePointer)) != EOF) {
-        
-        if (thisCharacter == '*') {
+
+        if (columnCounterPosition > 72) {
             while ((thisCharacter = fgetc(filePointer)) != '\n') {}
+            fseek(filePointer, 5, SEEK_CUR); 
+            thisCharacter = fgetc(filePointer);
+            columnCounterPosition = 6;
+            continue;
         }
+        
+        if (columnCounterPosition == 6) {
+            if (thisCharacter == '*' || thisCharacter == '/' || thisCharacter == 'd') {
+                while ((thisCharacter = fgetc(filePointer)) != '\n') {}
+            }
+
+            if (thisCharacter == '-') {
+                thisCharacter = fgetc(filePointer);
+                columnCounterPosition++;
+            }
+        }
+        
 
         if (thisCharacter == '\n') {
             fseek(filePointer, 5, SEEK_CUR); // avanca apenas 5 para conseguir somente na proxima interacao pegar o * e realziar as coisas necessarfias
@@ -332,7 +348,7 @@ void readCharByChar(char * file) {
         }
 
         columnCounterPosition++;
-        // APenas teste
+        // Apenas teste
         if (thisCharacter == '@') {
             columnCounterPosition++;
             printf("@ está na coluna %d\n", columnCounterPosition);
