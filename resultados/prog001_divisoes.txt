@@ -1,0 +1,36 @@
+LINHA  COLUNA  CATEGORIA        LEXEMA
+   15       8  IDENTIFICATION   IDENTIFICATION
+   15      23  DIVISION         DIVISION
+   15      31  DOT              .
+   16       8  PROGRAM-ID       PROGRAM-ID
+   16      18  DOT              .
+   16      20  IDENTIFIER       PROG0001
+   16      28  DOT              .
+   27       8  ENVIRONMENT      ENVIRONMENT
+   27      20  DIVISION         DIVISION
+   27      28  DOT              .
+   29       8  CONFIGURATION    CONFIGURATION
+   29      22  SECTION          SECTION
+   29      29  DOT              .
+   37       8  INPUT-OUTPUT     INPUT-OUTPUT
+   37      21  SECTION          SECTION
+   37      28  DOT              .
+   46       8  DATA             DATA
+   46      13  DIVISION         DIVISION
+   46      21  DOT              .
+   53       8  PROCEDURE        PROCEDURE
+   53      18  DIVISION         DIVISION
+   53      26  DOT              .
+   54       8  IDENTIFIER       MAIN-PROCEDURE
+   54      22  DOT              .
+   55      13  DISPLAY          DISPLAY
+   55      21  ALPHANUMERIC     "Hello world"
+   56      13  DISPLAY          display
+   56      21  ALPHANUMERIC     "Enio Basso - 2"
+   57      13  STOP             STOP
+   57      18  RUN              RUN
+   57      21  DOT              .
+   58       8  END              END
+   58      12  PROGRAM          PROGRAM
+   58      20  IDENTIFIER       PROG0001
+   58      28  DOT              .

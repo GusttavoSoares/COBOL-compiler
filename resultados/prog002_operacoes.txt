@@ -1,0 +1,321 @@
+LINHA  COLUNA  CATEGORIA        LEXEMA
+   11       8  IDENTIFICATION   IDENTIFICATION
+   11      23  DIVISION         DIVISION
+   11      31  DOT              .
+   12       8  PROGRAM-ID       PROGRAM-ID
+   12      18  DOT              .
+   12      20  IDENTIFIER       YOUR-PROGRAM-NAME
+   12      37  DOT              .
+   13       8  DATA             DATA
+   13      13  DIVISION         DIVISION
+   13      21  DOT              .
+   14       8  FILE             FILE
+   14      13  SECTION          SECTION
+   14      20  DOT              .
+   15       8  WORKING-STORAGE  WORKING-STORAGE
+   15      24  SECTION          SECTION
+   15      31  DOT              .
+   16      12  NUMERIC          77
+   16      15  IDENTIFIER       WRK-VALOR1
+   16      32  PIC              PIC
+   16      36  PIC_STRING       9(10)
+   16      42  VALUES           VALUES
+   16      49  NUMERIC          10
+   16      51  DOT              .
+   17      12  NUMERIC          77
+   17      15  IDENTIFIER       WRK-VALOR2
+   17      32  PIC              PIC
+   17      36  PIC_STRING       9(10)
+   17      42  VALUES           VALUES
+   17      49  ZEROS            ZEROS
+   17      54  DOT              .
+   18      12  NUMERIC          77
+   18      15  IDENTIFIER       WRK-A
+   18      32  PIC              PIC
+   18      36  PIC_STRING       9(2)
+   18      41  VALUES           VALUES
+   18      48  NUMERIC          1
+   18      49  DOT              .
+   19      12  NUMERIC          77
+   19      15  IDENTIFIER       WRK-B
+   19      32  PIC              PIC
+   19      36  PIC_STRING       9(2)
+   19      41  VALUES           VALUES
+   19      48  NUMERIC          1
+   19      49  DOT              .
+   20      12  NUMERIC          77
+   20      15  IDENTIFIER       WRK-C
+   20      32  PIC              PIC
+   20      36  PIC_STRING       9(2)
+   20      41  VALUES           VALUES
+   20      48  ZEROS            ZEROS
+   20      53  DOT              .
+   22      12  NUMERIC          01
+   22      15  IDENTIFIER       WRK-TOTAIS
+   22      25  DOT              .
+   23      15  NUMERIC          05
+   23      18  IDENTIFIER       WRK-TOTAL
+   23      32  PIC              PIC
+   23      36  PIC_STRING       9(10)
+   23      42  VALUE            VALUE
+   23      48  NUMERIC          19
+   23      50  DOT              .
+   25       8  PROCEDURE        PROCEDURE
+   25      18  DIVISION         DIVISION
+   25      26  DOT              .
+   26       8  IDENTIFIER       MAIN-PROCEDURE
+   26      22  DOT              .
+   27      12  DISPLAY          DISPLAY
+   27      20  ALPHANUMERIC     "===== start ======="
+   27      41  DOT              .
+   28      12  MOVE             MOVE
+   28      17  NUMERIC          20
+   28      20  TO               TO
+   28      23  IDENTIFIER       WRK-VALOR2
+   28      33  DOT              .
+   29      12  DISPLAY          DISPLAY
+   29      20  ALPHANUMERIC     "MOVE 20 TO WRK-VALOR2 -->"
+   29      48  IDENTIFIER       WRK-VALOR2
+   29      58  DOT              .
+   31      12  MOVE             MOVE
+   31      17  IDENTIFIER       WRK-VALOR1
+   31      28  TO               TO
+   31      31  IDENTIFIER       WRK-VALOR2
+   31      41  DOT              .
+   32      12  DISPLAY          DISPLAY
+   32      20  ALPHANUMERIC     "MOVE WRK-VALOR1 TO WRK-VALOR2 -->"
+   32      56  IDENTIFIER       WRK-VALOR2
+   32      66  DOT              .
+   34      12  MOVE             MOVE
+   34      17  NUMERIC          70
+   34      20  TO               TO
+   34      23  IDENTIFIER       WRK-VALOR1
+   34      34  IDENTIFIER       WRK-VALOR2
+   34      44  DOT              .
+   35      12  DISPLAY          DISPLAY
+   35      20  ALPHANUMERIC     "MOVE 70 TO WRK-VALOR1 WRK-VALOR2 -->"
+   35      59  IDENTIFIER       WRK-VALOR2
+   35      69  DOT              .
+   37      12  MOVE             MOVE
+   37      17  IDENTIFIER       WRK-TOTAL
+   37      27  IDENTIFIER       OF
+   37      30  IDENTIFIER       WRK-TOTAIS
+   37      41  TO               TO
+   37      44  IDENTIFIER       WRK-VALOR2
+   37      54  DOT              .
+   38      12  DISPLAY          DISPLAY
+   38      20  ALPHANUMERIC     "MOVE WRK-TOTAL OF WRK-TOTAIS TO WRK-VALOR2. -->"
+   39      22  IDENTIFIER       WRK-VALOR2
+   39      32  DOT              .
+   41      12  DISPLAY          DISPLAY
+   41      20  ALPHANUMERIC     "--------"
+   41      30  DOT              .
+   42      12  DISPLAY          DISPLAY
+   42      20  ALPHANUMERIC     "A = 1, B = 1, C = 1"
+   42      41  DOT              .
+   44      12  DISPLAY          DISPLAY
+   44      20  ALPHANUMERIC     " "
+   44      23  DOT              .
+   45      12  ADD              ADD
+   45      16  NUMERIC          1
+   45      18  NUMERIC          1
+   45      20  TO               TO
+   45      23  IDENTIFIER       WRK-A
+   45      28  DOT              .
+   46      12  DISPLAY          DISPLAY
+   46      20  ALPHANUMERIC     "ADD B C TO A (A = B + C + A) -->"
+   46      55  IDENTIFIER       WRK-A
+   46      60  DOT              .
+   48      12  MOVE             MOVE
+   48      17  NUMERIC          1
+   48      19  TO               TO
+   48      22  IDENTIFIER       WRK-A
+   48      27  DOT              .
+   49      12  ADD              ADD
+   49      16  NUMERIC          1
+   49      18  TO               TO
+   49      21  IDENTIFIER       WRK-A
+   49      27  IDENTIFIER       WRK-B
+   49      32  DOT              .
+   50      12  DISPLAY          DISPLAY
+   50      20  ALPHANUMERIC     " "
+   50      23  DOT              .
+   51      12  DISPLAY          DISPLAY
+   51      20  ALPHANUMERIC     "ADD 1 TO A B (A = A + 1; B = B + 1) -->"
+   52      12  DISPLAY          DISPLAY
+   52      20  ALPHANUMERIC     "A= "
+   52      26  IDENTIFIER       WRK-A
+   52      32  ALPHANUMERIC     " , B= "
+   52      41  IDENTIFIER       WRK-B
+   52      46  DOT              .
+   54      12  DISPLAY          DISPLAY
+   54      20  ALPHANUMERIC     " "
+   54      23  DOT              .
+   55      12  ADD              ADD
+   55      16  NUMERIC          1
+   55      18  NUMERIC          1
+   55      20  GIVING           GIVING
+   55      27  IDENTIFIER       WRK-A
+   55      32  DOT              .
+   56      12  DISPLAY          DISPLAY
+   56      20  ALPHANUMERIC     "ADD B C GIVING A (A = B + C) -->"
+   56      55  IDENTIFIER       WRK-A
+   56      60  DOT              .
+   58      12  DISPLAY          DISPLAY
+   58      20  ALPHANUMERIC     "============ SUBTRACT ============= "
+   58      58  DOT              .
+   59      12  MOVE             MOVE
+   59      17  NUMERIC          99
+   59      20  TO               TO
+   59      23  IDENTIFIER       WRK-A
+   59      28  DOT              .
+   60      12  MOVE             MOVE
+   60      17  NUMERIC          0
+   60      19  TO               TO
+   60      22  IDENTIFIER       WRK-B
+   60      27  DOT              .
+   61      12  DISPLAY          DISPLAY
+   61      20  ALPHANUMERIC     "A= 99, B= 0"
+   61      33  DOT              .
+   62      12  SUBTRACT         SUBTRACT
+   62      21  NUMERIC          30
+   62      24  NUMERIC          23
+   62      27  FROM             FROM
+   62      32  IDENTIFIER       WRK-A
+   63      27  GIVING           GIVING
+   63      34  IDENTIFIER       WRK-B
+   63      39  DOT              .
+   64      12  DISPLAY          DISPLAY
+   64      20  ALPHANUMERIC     "SUBTRACT 30 23 FROM A GIVING B.-->"
+   65      12  DISPLAY          DISPLAY
+   65      20  ALPHANUMERIC     "A= "
+   65      26  IDENTIFIER       WRK-A
+   65      32  ALPHANUMERIC     " , B= "
+   65      41  IDENTIFIER       WRK-B
+   65      46  DOT              .
+   67      12  DISPLAY          DISPLAY
+   67      20  ALPHANUMERIC     "============ MULTIPLY ============= "
+   67      58  DOT              .
+   68      12  MOVE             MOVE
+   68      17  NUMERIC          40
+   68      20  TO               TO
+   68      23  IDENTIFIER       WRK-A
+   68      28  DOT              .
+   69      12  MOVE             MOVE
+   69      17  NUMERIC          0
+   69      19  TO               TO
+   69      22  IDENTIFIER       WRK-B
+   69      27  DOT              .
+   70      12  DISPLAY          DISPLAY
+   70      20  ALPHANUMERIC     "A= 40, B= 0"
+   70      33  DOT              .
+   71      12  MULTIPLY         MULTIPLY
+   71      21  NUMERIC          2
+   71      23  BY               BY
+   71      26  IDENTIFIER       WRK-A
+   71      31  DOT              .
+   72      12  DISPLAY          DISPLAY
+   72      20  ALPHANUMERIC     "MULTIPLY A BY 2 -->"
+   73      12  DISPLAY          DISPLAY
+   73      20  ALPHANUMERIC     "A= "
+   73      26  IDENTIFIER       WRK-A
+   73      32  ALPHANUMERIC     " , B= "
+   73      41  IDENTIFIER       WRK-B
+   73      46  DOT              .
+   75      12  DISPLAY          DISPLAY
+   75      20  ALPHANUMERIC     "============ MULTIPLY ============= "
+   75      58  DOT              .
+   76      12  MOVE             MOVE
+   76      17  NUMERIC          40
+   76      20  TO               TO
+   76      23  IDENTIFIER       WRK-A
+   76      28  DOT              .
+   77      12  MOVE             MOVE
+   77      17  NUMERIC          0
+   77      19  TO               TO
+   77      22  IDENTIFIER       WRK-B
+   77      27  DOT              .
+   78      12  DISPLAY          DISPLAY
+   78      20  ALPHANUMERIC     "A= 40, B= 0"
+   78      33  DOT              .
+   79      12  MULTIPLY         MULTIPLY
+   79      21  NUMERIC          2
+   79      23  BY               BY
+   79      26  IDENTIFIER       WRK-A
+   79      32  GIVING           GIVING
+   79      39  IDENTIFIER       WRK-B
+   79      44  DOT              .
+   80      12  DISPLAY          DISPLAY
+   80      20  ALPHANUMERIC     "MULTIPLY A BY 2 GIVING B.-->"
+   81      12  DISPLAY          DISPLAY
+   81      20  ALPHANUMERIC     "A= "
+   81      26  IDENTIFIER       WRK-A
+   81      32  ALPHANUMERIC     " , B= "
+   81      41  IDENTIFIER       WRK-B
+   81      46  DOT              .
+   83      12  DISPLAY          DISPLAY
+   83      20  ALPHANUMERIC     "============ DIVIDE ============="
+   83      55  DOT              .
+   84      12  MOVE             MOVE
+   84      17  NUMERIC          81
+   84      20  TO               TO
+   84      23  IDENTIFIER       WRK-A
+   84      28  DOT              .
+   85      12  MOVE             MOVE
+   85      17  NUMERIC          0
+   85      19  TO               TO
+   85      22  IDENTIFIER       WRK-B
+   85      27  DOT              .
+   86      12  MOVE             MOVE
+   86      17  NUMERIC          0
+   86      19  TO               TO
+   86      22  IDENTIFIER       WRK-C
+   86      27  DOT              .
+   87      12  DISPLAY          DISPLAY
+   87      20  ALPHANUMERIC     "A= 80, B= 0"
+   87      33  DOT              .
+   88      12  DIVIDE           DIVIDE
+   88      19  IDENTIFIER       WRK-A
+   88      25  BY               BY
+   88      28  NUMERIC          2
+   88      30  GIVING           GIVING
+   88      37  IDENTIFIER       WRK-B
+   88      43  IDENTIFIER       REMAINDER
+   88      53  IDENTIFIER       WRK-C
+   88      58  DOT              .
+   89      12  DISPLAY          DISPLAY
+   89      20  ALPHANUMERIC     "DIVIDE A BY 2 GIVING B REMAINDER C .-->"
+   90      12  DISPLAY          DISPLAY
+   90      20  ALPHANUMERIC     "A= "
+   90      26  IDENTIFIER       WRK-A
+   90      32  ALPHANUMERIC     " , B= "
+   90      41  IDENTIFIER       WRK-B
+   90      47  ALPHANUMERIC     " , C= "
+   90      56  IDENTIFIER       WRK-C
+   90      61  DOT              .
+   93      12  DISPLAY          DISPLAY
+   93      20  ALPHANUMERIC     " "
+   93      23  DOT              .
+   94      12  MOVE             MOVE
+   94      17  NUMERIC          99
+   94      20  TO               TO
+   94      23  IDENTIFIER       WRK-A
+   94      28  DOT              .
+   95      12  ADD              ADD
+   95      16  NUMERIC          1
+   95      18  TO               TO
+   95      21  IDENTIFIER       WRK-A
+   96      12  IDENTIFIER       ON
+   96      15  IDENTIFIER       SIZE
+   96      20  IDENTIFIER       ERROR
+   97      15  DISPLAY          DISPLAY
+   97      23  ALPHANUMERIC     "ON SIZE ERROR -->"
+   97      43  IDENTIFIER       WRK-A
+   97      48  DOT              .
+   99      13  STOP             STOP
+   99      18  RUN              RUN
+   99      21  DOT              .
+  100       8  END              END
+  100      12  PROGRAM          PROGRAM
+  100      20  IDENTIFIER       YOUR-PROGRAM-NAME
+  100      37  DOT              .

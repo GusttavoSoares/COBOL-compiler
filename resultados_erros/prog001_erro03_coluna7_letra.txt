@@ -1,0 +1,38 @@
+caracter invalido na coluna 7: X
+LINHA  COLUNA  CATEGORIA        LEXEMA
+   16       7  TOK_ERROR        X
+   16       8  IDENTIFICATION   IDENTIFICATION
+   16      23  DIVISION         DIVISION
+   16      31  DOT              .
+   17       8  PROGRAM-ID       PROGRAM-ID
+   17      18  DOT              .
+   17      20  IDENTIFIER       PROG0001
+   17      28  DOT              .
+   28       8  ENVIRONMENT      ENVIRONMENT
+   28      20  DIVISION         DIVISION
+   28      28  DOT              .
+   30       8  CONFIGURATION    CONFIGURATION
+   30      22  SECTION          SECTION
+   30      29  DOT              .
+   38       8  INPUT-OUTPUT     INPUT-OUTPUT
+   38      21  SECTION          SECTION
+   38      28  DOT              .
+   47       8  DATA             DATA
+   47      13  DIVISION         DIVISION
+   47      21  DOT              .
+   54       8  PROCEDURE        PROCEDURE
+   54      18  DIVISION         DIVISION
+   54      26  DOT              .
+   55       8  IDENTIFIER       MAIN-PROCEDURE
+   55      22  DOT              .
+   56      13  DISPLAY          DISPLAY
+   56      21  ALPHANUMERIC     "Hello world"
+   57      13  DISPLAY          display
+   57      21  ALPHANUMERIC     "Enio Basso - 2"
+   58      13  STOP             STOP
+   58      18  RUN              RUN
+   58      21  DOT              .
+   59       8  END              END
+   59      12  PROGRAM          PROGRAM
+   59      20  IDENTIFIER       PROG0001
+   59      28  DOT              .
