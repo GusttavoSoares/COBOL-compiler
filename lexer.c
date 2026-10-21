@@ -1,130 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "hashtable.h"
 #include <ctype.h>
 #include <stdbool.h>
 
-enum TokenCategory {
-    // Reserved Keywords
-    IDENTIFICATION,
-    ENVIRONMENT,
-    DATA, 
-    PROCEDURE, 
-    DIVISION,
-    SECTION,
-    DISPLAY,
-    ACCEPT,
-    PERFORM,
-    STOP,
-    RUN,
-    IF, 
-    ELSE, 
-    MOVE,
-
-    // Literals
-    PLUS,
-    MINUS,
-    DOT,
-
-    // Identifiers
-    IDENTIFIER,
-    ALPHANUMERIC, 
-    NUMERIC,
-
-    // Special Symbols
-    COMMA, 
-    SEMICOLON, // ;
-    L_PARENTHESIS,
-    R_PARENTHESIS,
-    SLASH,
-    ASTERISK,
-    DEPURATION,
-
-};
-
-char * remove_space(char * lexeme) {
-    printf("tamanho %zu\n", strlen(lexeme));
-    
-    char *output = malloc(strlen(lexeme) + 1);
-
-    if (output == NULL) {
-        return NULL; 
-    }
-
-    char *writer = output;
-
-    int i, j;
-
-    for (i = 0, j = 0; i<strlen(lexeme); i++,j++) {
-        if (lexeme[i]!= ' ')    
-            writer[j]=lexeme[i];
-        else
-            j--;
-    }
-    
-    printf("chegou aqui\n");
-    return writer;
-
-}
 // Error Handling 
 // Inspiration - https://www.lowlevelcraft.com/tasks/lexer-error-handling
-
-bool isInvalidCharacter(char *lexeme) {
-    for (int i = 0; lexeme[i] != '\0'; i++) {
-        if (!isalnum(lexeme[i]));
-        return true;
-    }
-    return false;
-}
-
 bool isInvalidCharInColumn7 (char character) {
-    if (character != ' ' && character != 'd' && character != '*' && character && '/') {
-        printf("caracter invalido na coluna e linha %c\n", character);
+    if (character != ' ' && character != 'd' && character != '*' && character != '/' && character != '-') {
+        printf("caracter invalido na coluna 7: %c\n", character);
         return true;
     }
     return false;
 }
 
 bool isUserDefinedWord(char* lexeme) {
-    char first = lexeme[0];
-    char last;
+    int length = strlen(lexeme);
+    bool hasLetter = false;
 
-    if (first == '-' || first == '"')
+    if (length == 0 || length > 30)
+        return false;
+
+    char first = lexeme[0];
+    char last = lexeme[length - 1];
+
+    if (first == '-' || last == '-')
         return false;
 
     for (int i = 0; lexeme[i] != '\0'; i++) {
-        if (lexeme[i+1] == '\0') {
-            last = lexeme[i];
-            if (last == '-' || first == '"') 
+        if (isalpha(lexeme[i])) {
+            hasLetter = true;
+        } else if (!isdigit(lexeme[i]) && lexeme[i] != '-') {
             return false;
-        } 
-    }
-
-    char* output = remove_space(lexeme);
-
-    for (int i = 0; output[i] != '\0'; i++) {
-        
-        if (isInvalidCharacter(output)) {
-        for (int i = 1; output[i] != '\0'; i++) {
-            if (!isalnum(output[i]) && output[i] != '-') {
-                // printf("----------------------------------------------------------------------------------------");
-                printf("erro no caractere %c\n", output[i]); 
-                return false;
-            }
         }
-        return false;
-        } 
     }
-    return true;
-}
 
-bool isNumber(char* lexeme) {
-    for (int i = 1; lexeme[i] != '\0'; i++) {
-        if (!isdigit(lexeme[i])) 
-        return false;
-    } 
-    return true;
+    return hasLetter;
 }
 
 bool isNumberWithSigned(char* lexeme) {
@@ -133,11 +44,33 @@ bool isNumberWithSigned(char* lexeme) {
     return false;
 }
 
+bool isNumber(char* lexeme) {
+    int start = 0;
+    bool hasDecimalPoint = false;
+
+    // Se tiver sinal na frente, comeca a checar depois dele
+    if (isNumberWithSigned(lexeme))
+        start = 1;
+
+    if (lexeme[start] == '\0')
+        return false;
+
+    // ??
+    for (int i = start; lexeme[i] != '\0'; i++) {
+        if (lexeme[i] == '.' && !hasDecimalPoint && lexeme[i + 1] != '\0') {
+            hasDecimalPoint = true;
+        } else if (!isdigit((unsigned char) lexeme[i])) {
+            return false;
+        }
+    } 
+    return true;
+}
+
 bool isAlphaNumeric(char* lexeme) {
     char first = lexeme[0];
     char last;
 
-    if (first != '"')
+    if (first != '"' || strlen(lexeme) < 2)
     return false;
 
 
@@ -149,9 +82,7 @@ bool isAlphaNumeric(char* lexeme) {
         } 
     }
 
-   
     return true;
-
 }
 
 bool isLeftParenthesis (char * lexeme) {
@@ -161,9 +92,15 @@ bool isLeftParenthesis (char * lexeme) {
     return false;
 }
 
-
 bool isRightParenthesis (char * lexeme) {
     if (strcmp(lexeme, ")") == 0) {
+        return true;
+    }
+    return false;
+}
+
+bool isDot (char * lexeme) {
+    if (strcmp(lexeme, ".") == 0) {
         return true;
     }
     return false;
@@ -211,141 +148,193 @@ bool isGreater (char * lexeme) {
     return false;
 }
 
-
 struct Token{
     char* tokencategory;
     char* lexeme;
+    int line;
+    int column;
 };
+
+struct TokenList {
+    struct Token* items;
+    size_t length;
+    size_t capacity;
+};
+
+struct TokenList tokens = { NULL, 0, 0 };
 
 void exit_nomem(void) {
     fprintf(stderr, "out of memory\n");
     exit(1);
 }
 
+static char* keywords[] = {
+    "IDENTIFICATION", "ENVIRONMENT", "DATA", "PROCEDURE", "DIVISION", "SECTION",
+    "PROGRAM-ID", "AUTHOR", "CONFIGURATION", "INPUT-OUTPUT", "FILE",
+    "WORKING-STORAGE", "LOCAL-STORAGE", "LINKAGE",
+
+    "PIC", "PICTURE", "VALUE", "VALUES",
+
+    "ZERO", "ZEROS", "ZEROES", "SPACE", "SPACES",
+
+    "DISPLAY", "ACCEPT", "MOVE", "TO", "PERFORM", "VARYING", "FROM", "BY",
+    "UNTIL", "TIMES", "END-PERFORM", "IF", "THEN", "ELSE", "END-IF",
+    "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "COMPUTE", "GIVING",
+    "STOP", "RUN", "GOBACK",
+};
+
 char* isKeyword(char* lexeme) {
-    //printf("lexeme que chegou %s\n", lexeme);
-
-    if (strcmp(lexeme, "IDENTIFICATION") == 0) {
-        return "IDENTIFICATION";
-    } else if (strcmp(lexeme, "ENVIRONMENT") == 0) {
-        return "ENVIRONMENT";
-    } else if (strcmp(lexeme, "DATA") == 0) {
-        return "DATA";
-    } else if (strcmp(lexeme, "PROCEDURE") == 0) {
-        return "PROCEDURE";
-    } else if (strcmp(lexeme, "DIVISION") == 0) {
-        return "DIVISION";
-    } else if (strcmp(lexeme, "SECTION") == 0) {
-        return "SECTION";
-    } else if (strcmp(lexeme, "DISPLAY") == 0) {
-        return "DISPLAY";
-    } else if (strcmp(lexeme, "ACCEPT") == 0) {
-        return "ACCEPT";
-    } else if (strcmp(lexeme, "PERFORM") == 0) {
-        return "PERFORM";
-    } else if (strcmp(lexeme, "STOP") == 0) {
-        return "STOP";
-    } else if (strcmp(lexeme, "RUN") == 0) {
-        return "RUN";
-    } else if (strcmp(lexeme, "IF") == 0) {
-        return "IF";
-    } else if (strcmp(lexeme, "ELSE") == 0) {
-        return "ELSE";
-    } else if (strcmp(lexeme, "MOVE") == 0) {
-        return "MOVE";
-    } else {
-        return NULL;
+    for (size_t i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
+        if (strcmp(lexeme, keywords[i]) == 0) {
+            return keywords[i];
+        }
     }
+    return NULL;
 }
 
-void addToken(char* tokencategory, char* lexeme) { 
-    // enum TokenCategory category = character;
-   struct Token t = { tokencategory, lexeme};
-   printf("Token category: %s ", t.tokencategory);
-   printf("Token lexeme: %s\n", t.lexeme);
+void addToken(char* tokencategory, char* lexeme, int line, int column) { 
+    if (tokens.length == tokens.capacity) {
+        size_t new_capacity = tokens.capacity == 0 ? 16 : tokens.capacity * 2;
+        struct Token* new_items = realloc(tokens.items, new_capacity * sizeof(struct Token));
+        if (new_items == NULL) {
+            exit_nomem();
+        }
+        tokens.items = new_items;
+        tokens.capacity = new_capacity;
+    }
+
+    char* lexeme_copy = strdup(lexeme);
+    if (lexeme_copy == NULL) {
+        exit_nomem();
+    }
+
+    tokens.items[tokens.length].tokencategory = tokencategory;
+    tokens.items[tokens.length].lexeme = lexeme_copy;
+    tokens.items[tokens.length].line = line;
+    tokens.items[tokens.length].column = column;
+    tokens.length++;
 }
 
-void  defineTokenCategory(char* lexeme ){
+void freeTokens(void) {
+    for (size_t i = 0; i < tokens.length; i++) {
+        free(tokens.items[i].lexeme);
+    }
+    free(tokens.items);
+    tokens.items = NULL;
+    tokens.length = 0;
+    tokens.capacity = 0;
+}
+
+void  defineTokenCategory(char* lexeme, int line, int column){
     char* keyword = isKeyword(lexeme);
 
     if (keyword != NULL) {
-        addToken(keyword, lexeme);
+        addToken(keyword, lexeme, line, column);
     } else {
         bool isUserDefinedWord_bool = isUserDefinedWord(lexeme);
 
         if (isUserDefinedWord_bool) {
-            addToken("IDENTIFIER", lexeme);
+            addToken("IDENTIFIER", lexeme, line, column);
         } else if (isAlphaNumeric(lexeme)) {
-            addToken("ALPHANUMERIC", lexeme);            
+            addToken("ALPHANUMERIC", lexeme, line, column);            
         } else if (isEqual(lexeme)) {
-            addToken("EQUAL", lexeme);
+            addToken("EQUAL", lexeme, line, column);
         } else if (isLess(lexeme)) {
-            addToken("LESS", lexeme);
+            addToken("LESS", lexeme, line, column);
         } else if (isEqualOrLess(lexeme)) {
-            addToken("EQUALORLESS", lexeme);
+            addToken("EQUALORLESS", lexeme, line, column);
         } else if (isEqualOrGreater(lexeme)) {
-            addToken("EQUALORGREATER", lexeme);
+            addToken("EQUALORGREATER", lexeme, line, column);
         } else if (isGreater(lexeme)) {
-            addToken("GREATERTHAN", lexeme);
+            addToken("GREATERTHAN", lexeme, line, column);
         } else if (isLeftParenthesis(lexeme)) {
-            addToken("LPARENTHESIS", lexeme);
+            addToken("LPARENTHESIS", lexeme, line, column);
         } else if (isRightParenthesis(lexeme)) {
-            addToken("RPARENTHESIS", lexeme);
+            addToken("RPARENTHESIS", lexeme, line, column);
+        } else if (isDot(lexeme)) {
+            addToken("DOT", lexeme, line, column);
         } else if (isMinus(lexeme)) {
-            addToken("MINUS", lexeme);
+            addToken("MINUS", lexeme, line, column);
         } else if (isNumber(lexeme)) {
-            char* numericlexeme;
             if (isNumberWithSigned(lexeme)) {
                 if (lexeme[0] == '-') {
-                    addToken("MINUS", "-");
+                    addToken("MINUS", "-", line, column);
                 } else {
-                    addToken("PLUS", "+");
+                    addToken("PLUS", "+", line, column);
                 }
 
-                strcpy(numericlexeme, lexeme + 1);
-                addToken("NUMERIC", numericlexeme);
+                addToken("NUMERIC", lexeme + 1, line, column + 1);
 
             } else {
-            addToken("NUMERIC", lexeme);
+            addToken("NUMERIC", lexeme, line, column);
             }
+        } else {
+            printf("token invalido: %s (linha %d)\n", lexeme, line);
+            addToken("TOK_ERROR", lexeme, line, column);
         }
+    }
+}
+
+void appendToLexeme(char* s, size_t size, int character, int line, int column, int* startLine, int* startColumn) {
+    size_t length = strlen(s);
+
+    if (length == 0) {
+        *startLine = line;
+        *startColumn = column;
+    }
+
+    if (length < size - 1) {
+        s[length] = (char) character;
+        s[length + 1] = '\0';
+    } else {
+        printf("lexema muito longo na linha %d, coluna %d\n", *startLine, *startColumn);
     }
 }
 
 void readCharByChar(char * file) {
     FILE *filePointer = NULL;
+
     int columnCounterPosition = 0;
     int lineCounter = 1;
-    bool isInQuotationMarks = false; // check if is in a quotation mark, like DISPLAY "===== start =======".
+    bool isInQuotationMarks = false;
+
+    int startLine = 0;
+    int startColumn = 0;
     
-    int thisCharacter; // hold the value of current character
-    char s[30];
+    int thisCharacter;
+    char s[256];
     memset(s, 0, sizeof(s)); // importante
     filePointer = fopen(file, "r");
-    fseek(filePointer, 6, SEEK_CUR);
-    columnCounterPosition = ftell(filePointer) + 1;
     
     if (filePointer == NULL) {
         perror("Error in file pointer ");
-        // return -1;
+        return;
     }
+
+    fseek(filePointer, 6, SEEK_CUR);
+    columnCounterPosition = 6;
     
     while ((thisCharacter = fgetc(filePointer)) != EOF) {
 
-        if (columnCounterPosition > 72) {
-            while ((thisCharacter = fgetc(filePointer)) != '\n') {}
-            fseek(filePointer, 5, SEEK_CUR); 
-            thisCharacter = fgetc(filePointer);
-            lineCounter++;
-            columnCounterPosition = 6;
-            continue;
+        if (columnCounterPosition >= 72 && thisCharacter != '\n') {
+            while ((thisCharacter = fgetc(filePointer)) != '\n' && thisCharacter != EOF) {}
+            if (thisCharacter == EOF) {
+                break;
+            }
         }
         
-        if (columnCounterPosition == 6) {
-            isInvalidCharInColumn7(thisCharacter);
+        if (columnCounterPosition == 6 && thisCharacter != '\n') {
+            if (isInvalidCharInColumn7(thisCharacter)) {
+                char invalid[2] = { (char) thisCharacter, '\0' };
+                addToken("TOK_ERROR", invalid, lineCounter, 7);
+                columnCounterPosition++;
+                continue;
+            }
             if (thisCharacter == '*' || thisCharacter == '/' || thisCharacter == 'd') {
-                while ((thisCharacter = fgetc(filePointer)) != '\n') {}
-                lineCounter++;
+                while ((thisCharacter = fgetc(filePointer)) != '\n' && thisCharacter != EOF) {}
+                if (thisCharacter == EOF) {
+                    break;
+                }
             }
 
             if (thisCharacter == '-') {
@@ -363,6 +352,8 @@ void readCharByChar(char * file) {
             continue;
         }
 
+        int column = columnCounterPosition + 1;
+
         if (thisCharacter == '"') {
             if (isInQuotationMarks == true) {
                 isInQuotationMarks = false;
@@ -371,92 +362,64 @@ void readCharByChar(char * file) {
             }
         }
         
-        if (isInQuotationMarks) {
-            char cToStr[2];
-            cToStr[1] = '\0';
+        if (thisCharacter == '.' && !isInQuotationMarks && *s != 0 && isNumber(s)) {
+            int nextCharacter = fgetc(filePointer);
+            ungetc(nextCharacter, filePointer);
 
-            if (thisCharacter != '\n') {
-                cToStr[0] = (char) thisCharacter;
-                strcat(s, cToStr);
+            if (isdigit(nextCharacter)) {
+                appendToLexeme(s, sizeof(s), thisCharacter, lineCounter, column, &startLine, &startColumn);
+                columnCounterPosition++;
+                continue;
             }
+        }
+
+        if (isInQuotationMarks) {
+            appendToLexeme(s, sizeof(s), thisCharacter, lineCounter, column, &startLine, &startColumn);
 
         } else if (thisCharacter != ' ' && thisCharacter != '.' && thisCharacter != '*' && thisCharacter != '(' && thisCharacter != ')' && !isInQuotationMarks) {
-            // while (*s++);
-            char cToStr[2];
-            cToStr[1] = '\0';
-
-            if (thisCharacter != '\n') {
-                cToStr[0] = (char) thisCharacter;
-                strcat(s, cToStr);
-            }
+            appendToLexeme(s, sizeof(s), thisCharacter, lineCounter, column, &startLine, &startColumn);
 
         } else {
             // KEYWORDS
             if (*s != 0) {
-
-                defineTokenCategory(s);
-
-                if (thisCharacter == '(') {
-                    defineTokenCategory("(");
-                }
-
-
-                if (thisCharacter == ')') {
-                    defineTokenCategory(")");
-                }
-
+                defineTokenCategory(s, startLine, startColumn);
                 memset(s, 0, sizeof(s));
+            }
+
+            if (thisCharacter == '.') {
+                defineTokenCategory(".", lineCounter, column);
+            }
+
+            if (thisCharacter == '(') {
+                defineTokenCategory("(", lineCounter, column);
+            }
+
+            if (thisCharacter == ')') {
+                defineTokenCategory(")", lineCounter, column);
             }
         }
 
         columnCounterPosition++;
-        // Apenas teste
-        if (thisCharacter == '@') {
-            columnCounterPosition++;
-            printf("@ está na coluna %d\n", columnCounterPosition);
-            printf("@ está na linha %d\n", lineCounter);
-        }
+    }
+
+    if (*s != 0) {
+        defineTokenCategory(s, startLine, startColumn);
     }
     
     fclose(filePointer);
 }
 
 int main() {
-    // char slash = '/';
-    // scanLine4Token(slash);
-    
-    
-    // char *line = NULL;
-    // size_t len = 0;
-    // ssize_t read;
-    
-    // printf("Enter a line: ");
-    // read = getline(&line, &len, stdin);
-    
-    // if (read != -1) {
-    //     printf("you entered: %ld", read);
-    // } else {
-    //     printf("error to read");
-    // }
-    
-    // free(line);
-
-    // hash_table* symbol_table = hashTableCreate();
-    
     readCharByChar("cobol_code.cbl");
 
-    // hti it = ht_iterator(symbol_table);
-    // printf("---------------------\n");
-    // while (ht_next(&it)) {
-    //     printf("---------------------\n");
-    //     printf("%s %d\n", it.key, *(int*)it.value);
-    //     free(it.value);
+    printf("---------------------\n");
+    printf("LINHA  COLUNA  CATEGORIA        LEXEMA\n");
+    for (size_t i = 0; i < tokens.length; i++) {
+        struct Token t = tokens.items[i];
+        printf("%5d  %6d  %-15s  %s\n", t.line, t.column, t.tokencategory, t.lexeme);
+    }
 
-    // }
-
-    // printf("len: %d\n", (int)ht_length(symbol_table));
+    freeTokens();
     return 0;
-
-    
 
 }

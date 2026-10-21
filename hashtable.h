@@ -8,7 +8,7 @@ typedef struct hash_table hash_table;
 
 hash_table* hashTableCreate(void);
 
-// void ht_destroy(hash_table* table);
+void ht_destroy(hash_table* table);
 
 void* ht_get(hash_table* table, const char* key);
 

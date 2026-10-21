@@ -19,6 +19,16 @@ struct hash_table {
 };
 
 
+void ht_destroy(hash_table* table) {
+    // Libera as chaves (copiadas com strdup). Os values sao responsabilidade de quem chamou
+    for (size_t i = 0; i < table->capacity; i++) {
+        free((void*)table->entries[i].key);
+    }
+
+    free(table->entries);
+    free(table);
+}
+
 hash_table* hashTableCreate(void) {
     hash_table* table = malloc(sizeof(hash_table));
     
@@ -89,17 +99,43 @@ static const char* ht_set_entry(hash_table_entry* entries, size_t capacity, cons
     }
 
 
+// Dobra a capacidade da tabela e reposiciona todas as entradas
+static bool ht_expand(hash_table* table) {
+    size_t new_capacity = table->capacity * 2;
+    if (new_capacity < table->capacity) {
+        return false; // overflow
+    }
+
+    hash_table_entry* new_entries = calloc(new_capacity, sizeof(hash_table_entry));
+    if (new_entries == NULL) {
+        return false;
+    }
+
+    // plength NULL: as chaves ja foram copiadas, so move os ponteiros
+    for (size_t i = 0; i < table->capacity; i++) {
+        hash_table_entry entry = table->entries[i];
+        if (entry.key != NULL) {
+            ht_set_entry(new_entries, new_capacity, entry.key, entry.value, NULL);
+        }
+    }
+
+    free(table->entries);
+    table->entries = new_entries;
+    table->capacity = new_capacity;
+    return true;
+}
+
 const char* ht_set(hash_table* table, const char* key, void* value) {
     //assert(value != NULL);
     if (value == NULL) {
         return NULL;
     }
 
-    // if (table->length >= table->capacity / 2) {
-    //     if (!ht_expand(table)) { // Falta implementar a expansão
-    //         return NULL;
-    //     }
-    // }
+    if (table->length >= table->capacity / 2) {
+        if (!ht_expand(table)) {
+            return NULL;
+        }
+    }
 
     return ht_set_entry(table->entries, table->capacity, key, value, &table->length);
 }
