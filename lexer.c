@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 #include <stdbool.h>
 
@@ -182,8 +183,10 @@ void exit_nomem(void) {
 
 static char* keywords[] = {
     "IDENTIFICATION", "ENVIRONMENT", "DATA", "PROCEDURE", "DIVISION", "SECTION",
-    "PROGRAM-ID", "AUTHOR", "CONFIGURATION", "INPUT-OUTPUT", "FILE",
-    "WORKING-STORAGE", "LOCAL-STORAGE", "LINKAGE",
+    "PROGRAM-ID", "CONFIGURATION", "INPUT-OUTPUT", "FILE",
+    "WORKING-STORAGE", "LOCAL-STORAGE", "LINKAGE", "SCREEN",
+    "SOURCE-COMPUTER", "OBJECT-COMPUTER", "SPECIAL-NAMES", "FILE-CONTROL", "I-O-CONTROL",
+    "SELECT", "ASSIGN", "END", "PROGRAM",
 
     "PIC", "PICTURE", "VALUE", "VALUES",
 
@@ -199,7 +202,7 @@ static char* keywords[] = {
 
 char* isKeyword(char* lexeme) {
     for (int i = 0; keywords[i] != NULL; i++) {
-        if (strcmp(lexeme, keywords[i]) == 0) {
+        if (strcasecmp(lexeme, keywords[i]) == 0) { 
             return keywords[i];
         }
     }
@@ -305,12 +308,27 @@ void appendToLexeme(char* s, size_t size, int character, int line, int column, i
     }
 }
 
+// Paragrafos que sao so documentacao e sao ignorados como comentario (ex: AUTHOR. Enio Basso.)
+static char* commentEntryKeywords[] = {
+    "AUTHOR", "INSTALLATION", "DATE-WRITTEN", "DATE-COMPILED", "SECURITY", "REMARKS",
+    NULL // fim da lista
+};
+
+bool isCommentEntry(char* lexeme) {
+    for (int i = 0; commentEntryKeywords[i] != NULL; i++) {
+        if (strcasecmp(lexeme, commentEntryKeywords[i]) == 0)
+            return true;
+    }
+    return false;
+}
+
 void readCharByChar(char * file) {
     FILE *filePointer = NULL;
 
     int columnCounterPosition = 0;
     int lineCounter = 1;
     bool isInQuotationMarks = false;
+    bool isInPictureString = false; // logo depois de PIC ou PICTURE
 
     int startLine = 0;
     int startColumn = 0;
@@ -359,14 +377,42 @@ void readCharByChar(char * file) {
         
 
         if (thisCharacter == '\n') {
-            fseek(filePointer, 5, SEEK_CUR); // avanca apenas 5 para conseguir somente na proxima interacao pegar o * e realziar as coisas necessarfias
-            thisCharacter = fgetc(filePointer);
             lineCounter++;
             columnCounterPosition = 6;
+
+            for (int skipped = 0; skipped < 6; skipped++) {
+                thisCharacter = fgetc(filePointer);
+                if (thisCharacter == EOF)
+                    break;
+                if (thisCharacter == '\n') {
+                    lineCounter++;
+                    skipped = -1;
+                }
+            }
             continue;
         }
 
         int column = columnCounterPosition + 1;
+
+        if (isInPictureString) {
+            int nextCharacter = fgetc(filePointer);
+            ungetc(nextCharacter, filePointer);
+
+            bool nextIsBlank = nextCharacter == ' ' || nextCharacter == '\n' || nextCharacter == EOF;
+            bool endsPicture = thisCharacter == ' ' || ((thisCharacter == '.' || thisCharacter == ',') && nextIsBlank);
+
+            if (!endsPicture) {
+                appendToLexeme(s, sizeof(s), thisCharacter, lineCounter, column, &startLine, &startColumn);
+                columnCounterPosition++;
+                continue;
+            }
+
+            if (*s != 0 && strcasecmp(s, "IS") != 0) {
+                addToken("PIC_STRING", s, startLine, startColumn);
+                memset(s, 0, sizeof(s));
+                isInPictureString = false;
+            }
+        }
 
         if (thisCharacter == '"') {
             if (isInQuotationMarks == true) {
@@ -390,13 +436,24 @@ void readCharByChar(char * file) {
         if (isInQuotationMarks) {
             appendToLexeme(s, sizeof(s), thisCharacter, lineCounter, column, &startLine, &startColumn);
 
-        } else if (thisCharacter != ' ' && thisCharacter != '.' && thisCharacter != '*' && thisCharacter != '(' && thisCharacter != ')' && !isInQuotationMarks) {
+        } else if (thisCharacter != ' ' && thisCharacter != ',' && thisCharacter != '.' && thisCharacter != '*' && thisCharacter != '(' && thisCharacter != ')' && !isInQuotationMarks) {
             appendToLexeme(s, sizeof(s), thisCharacter, lineCounter, column, &startLine, &startColumn);
 
         } else {
             // KEYWORDS
             if (*s != 0) {
+                if (isCommentEntry(s)) {
+                    memset(s, 0, sizeof(s));
+                    while ((thisCharacter = fgetc(filePointer)) != '\n' && thisCharacter != EOF) {}
+                    ungetc(thisCharacter, filePointer); // devolve o \n para ser tratado no inicio do loop
+                    continue;
+                }
+
                 defineTokenCategory(s, startLine, startColumn);
+
+                if (strcasecmp(s, "PIC") == 0 || strcasecmp(s, "PICTURE") == 0)
+                    isInPictureString = true;
+
                 memset(s, 0, sizeof(s));
             }
 
@@ -423,10 +480,13 @@ void readCharByChar(char * file) {
     fclose(filePointer);
 }
 
-int main() {
-    readCharByChar("cobol_code.cbl");
+int main(int argc, char* argv[]) {
+    char* file = "cobol_code.cbl";
+    if (argc > 1)
+        file = argv[1];
 
-    printf("---------------------\n");
+    readCharByChar(file);
+
     printf("LINHA  COLUNA  CATEGORIA        LEXEMA\n");
     for (size_t i = 0; i < tokens.length; i++) {
         struct Token t = tokens.items[i];
