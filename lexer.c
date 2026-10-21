@@ -300,6 +300,7 @@ void  defineTokenCategory(char* lexeme ){
 void readCharByChar(char * file) {
     FILE *filePointer = NULL;
     int columnCounterPosition = 0;
+    int lineCounter = 1;
     bool isInQuotationMarks = false; // check if is in a quotation mark, like DISPLAY "===== start =======".
     
     int thisCharacter; // hold the value of current character
@@ -320,6 +321,7 @@ void readCharByChar(char * file) {
             while ((thisCharacter = fgetc(filePointer)) != '\n') {}
             fseek(filePointer, 5, SEEK_CUR); 
             thisCharacter = fgetc(filePointer);
+            lineCounter++;
             columnCounterPosition = 6;
             continue;
         }
@@ -327,6 +329,7 @@ void readCharByChar(char * file) {
         if (columnCounterPosition == 6) {
             if (thisCharacter == '*' || thisCharacter == '/' || thisCharacter == 'd') {
                 while ((thisCharacter = fgetc(filePointer)) != '\n') {}
+                lineCounter++;
             }
 
             if (thisCharacter == '-') {
@@ -339,6 +342,7 @@ void readCharByChar(char * file) {
         if (thisCharacter == '\n') {
             fseek(filePointer, 5, SEEK_CUR); // avanca apenas 5 para conseguir somente na proxima interacao pegar o * e realziar as coisas necessarfias
             thisCharacter = fgetc(filePointer);
+            lineCounter++;
             columnCounterPosition = 6;
             continue;
         }
@@ -391,6 +395,7 @@ void readCharByChar(char * file) {
         if (thisCharacter == '@') {
             columnCounterPosition++;
             printf("@ está na coluna %d\n", columnCounterPosition);
+            printf("@ está na linha %d\n", lineCounter);
         }
     }
     
