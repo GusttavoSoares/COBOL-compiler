@@ -44,33 +44,48 @@ enum TokenCategory {
 };
 
 char * remove_space(char * lexeme) {
-    char *output = lexeme;
-    do {
-        while(*output == ' ') {
-            ++output;
-        }
-    } while (*lexeme++ = *output++);
+    printf("tamanho %zu\n", strlen(lexeme));
     
-    return output;
+    char *output = malloc(strlen(lexeme) + 1);
+
+    if (output == NULL) {
+        return NULL; 
+    }
+
+    char *writer = output;
+
+    int i, j;
+
+    for (i = 0, j = 0; i<strlen(lexeme); i++,j++) {
+        if (lexeme[i]!= ' ')    
+            writer[j]=lexeme[i];
+        else
+            j--;
+    }
+    
+    printf("chegou aqui\n");
+    return writer;
 
 }
 // Error Handling 
 // Inspiration - https://www.lowlevelcraft.com/tasks/lexer-error-handling
 
 bool isInvalidCharacter(char *lexeme) {
-    // printf("entrou aqui");
     for (int i = 0; lexeme[i] != '\0'; i++) {
         if (!isalnum(lexeme[i]));
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
-bool isUnderterminatedString(char *lexeme) {}
+bool isInvalidCharInColumn7 (char character) {
+    if (character != ' ' && character != 'd' && character != '*' && character && '/') {
+        printf("caracter invalido na coluna e linha %c\n", character);
+        return true;
+    }
+    return false;
+}
 
-bool isInvalidNumber(char *lexeme) {}
-
-// Problematica se colocar @ no meio, ajeitar depois
 bool isUserDefinedWord(char* lexeme) {
     char first = lexeme[0];
     char last;
@@ -86,13 +101,15 @@ bool isUserDefinedWord(char* lexeme) {
         } 
     }
 
-    for (int i = 0; lexeme[i] != '\0'; i++) {
-        char* output = remove_space(lexeme);
-        if (isInvalidCharacter(output)) {
+    char* output = remove_space(lexeme);
 
-        for (int i = 1; lexeme[i] != '\0'; i++) {
-            if (!isalnum(lexeme[i])) {
-                printf("erro no caractere %c\n", lexeme[i]);  // esta identificando - como errado, mas deve permitir
+    for (int i = 0; output[i] != '\0'; i++) {
+        
+        if (isInvalidCharacter(output)) {
+        for (int i = 1; output[i] != '\0'; i++) {
+            if (!isalnum(output[i]) && output[i] != '-') {
+                // printf("----------------------------------------------------------------------------------------");
+                printf("erro no caractere %c\n", output[i]); 
                 return false;
             }
         }
@@ -193,8 +210,6 @@ bool isGreater (char * lexeme) {
     }
     return false;
 }
-
-
 
 
 struct Token{
@@ -327,6 +342,7 @@ void readCharByChar(char * file) {
         }
         
         if (columnCounterPosition == 6) {
+            isInvalidCharInColumn7(thisCharacter);
             if (thisCharacter == '*' || thisCharacter == '/' || thisCharacter == 'd') {
                 while ((thisCharacter = fgetc(filePointer)) != '\n') {}
                 lineCounter++;
@@ -380,11 +396,14 @@ void readCharByChar(char * file) {
 
                 defineTokenCategory(s);
 
-                if (thisCharacter == '(')
-                defineTokenCategory("(");
+                if (thisCharacter == '(') {
+                    defineTokenCategory("(");
+                }
 
-                if (thisCharacter == ')')
-                defineTokenCategory(")");
+
+                if (thisCharacter == ')') {
+                    defineTokenCategory(")");
+                }
 
                 memset(s, 0, sizeof(s));
             }
