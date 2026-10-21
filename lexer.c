@@ -57,12 +57,24 @@ bool isNumber(char* lexeme) {
 
     // ??
     for (int i = start; lexeme[i] != '\0'; i++) {
-        if (lexeme[i] == '.' && !hasDecimalPoint && lexeme[i + 1] != '\0') {
+        char c = lexeme[i];
+
+        if (isdigit(c))
+            continue;
+
+        if (c == '.') {
+            if (hasDecimalPoint)
+                return false; // segundo ponto
+
+            if (lexeme[i + 1] == '\0')
+                return false; // ponto no final ex: 3.
+
             hasDecimalPoint = true;
-        } else if (!isdigit((unsigned char) lexeme[i])) {
-            return false;
+            continue;
         }
-    } 
+
+        return false;
+    }
     return true;
 }
 
@@ -181,10 +193,12 @@ static char* keywords[] = {
     "UNTIL", "TIMES", "END-PERFORM", "IF", "THEN", "ELSE", "END-IF",
     "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "COMPUTE", "GIVING",
     "STOP", "RUN", "GOBACK",
+
+    NULL // fim da lista
 };
 
 char* isKeyword(char* lexeme) {
-    for (size_t i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
+    for (int i = 0; keywords[i] != NULL; i++) {
         if (strcmp(lexeme, keywords[i]) == 0) {
             return keywords[i];
         }
